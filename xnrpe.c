@@ -1,180 +1,384 @@
-#include "xnrpe.h"
 #include "xcommon.h"
-#include "xutils.h"
-#include "xconfig.h"
 
-extern int asprintf(char *ptr, const char *format, ...);
-
-#define MAX_LISTEN_SOCKS	16
-#define DEFAULT_LISTEN_QUEUE_SIZE	5
-
+command  *command_list = NULL;
+char server_address[NI_MAXHOST]="";
+int server_port=DEFAULT_SERVER_PORT;
 extern int errno;
+struct epoll_event event;
+struct epoll_event ev[EPOLL_LEN];
+char  config_file[MAX_INPUT_BUFFER] = "nrpe.cfg";
 
-struct	addrinfo *listen_addrs = NULL;
-int     num_listen_socks = 0;
-int		listen_socks[MAX_LISTEN_SOCKS];
-int server_port = DEFAULT_SERVER_PORT;
-
-int socket_timeout = DEFAULT_SCOKET_TIMEOUT;
-int address_family = AF_UNSPEC;
+int listen_socks[MAX_LISTEN_SOCKS];
 int num_listen_socks = 0;
+int socket_timeout = DEFAULT_SOCKET_TIMEOUT;
 int connection_timeout = DEFAULT_CONNECTION_TIMEOUT;
-int       sigrestart = FALSE;
-int       sigshutdown = FALSE;
+int task_num = 2;
+int task_flag = 1;
+int show_help = false;
 
-
-
-void create_listener(struct addrinfo *ai)
+//signal function to exit process
+int signal_flag_int = true;
+int signal_flag_term = true;
+void fun_int(int arg)
 {
-	int ret;
-	char      ntop[NI_MAXHOST], strport[NI_MAXSERV];
-	int       listen_sock;
-	int       flag = 1;
-
-	if (ai->ai_family != AF_INET && ai->ai_family != AF_INET6)
-		return;
-
-	if (num_listen_socks >= MAX_LISTEN_SOCKS) 
-	{
-		fprintf(stdout, "Too many listen sockets. Enlarge MAX_LISTEN_SOCKS");
-		exit(1);
-	}
-
-	if ((ret = getnameinfo(ai->ai_addr, ai->ai_addrlen, ntop, sizeof(ntop),
-						   strport, sizeof(strport), NI_NUMERICHOST | NI_NUMERICSERV)) != 0) 
-	{
-		fprintf(stdout, "getnameinfo failed");
-		return;
-	}
-						   
-
-	/* Create socket for listening. */
-	listen_sock = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
-	if (listen_sock < 0) 
-	{
-		/* kernel may not support ipv6 */
-		fprintf(stdout, "socket: %.100s", strerror(errno));
-		return;
-	}
-
-	/* socket should be non-blocking */
-	fcntl(listen_sock, F_SETFL, O_NONBLOCK);
-
-	/* set the reuse address flag so we don't get errors when restarting */
-	if (setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag)) < 0) 
-	{
-		fprintf(stdout, "setsockopt SO_REUSEADDR: %s", strerror(errno));
-		return;
-	}
-
-	/* Bind the socket to the desired port. */
-	if (bind(listen_sock, ai->ai_addr, ai->ai_addrlen) < 0) 
-	{
-		fprintf(stdout, "Bind to port %s on %s failed",strport,strerror(errno));
-		close(listen_sock);
-		return;
-	}
-
-	listen_socks[num_listen_socks] = listen_sock;
-	num_listen_socks ++;
-
-	/* Start listening on the port. */
-	if (listen(listen_sock, listen_queue_size) < 0) 
-	{
-		fprintf(stdout,"listen on [%s]:%s: %.100s", ntop, strport, strerror(errno));
-		exit(1);
-	}
-
-	fprintf(stdout, "Server listening on %s port %s.", ntop, strport);
-	
-	return ;
+	signal_flag_int = false;
+}
+void fun_term(int arg)
+{
+	signal_flag_term = false;
 }
 
-void wait_for_connections(void)
+void handle_pipe(int sig)
 {
-	struct sockaddr from;
-	socklen_t fromlen;
-	fd_set *fdset = NULL;
-	int maxfd = 0,new_sd = 0, i, rc, retval;
+    fprintf(stdout, "catch a SIGPIPE signal");
+    return;
+}
 
-	setup_wait_conn();
-	while(1)
+//timer task and send message
+void *task(void *args)
+{
+
+    ARGS *args_value = (ARGS *)args;
+    int time = args_value->time;
+    char cmd[MAX_INPUT_BUFFER] ="";
+    char buf[MAX_INPUT_BUFFER] ="";
+    char outbuf[MAX_INPUT_BUFFER]="";
+    int len = 0;
+    strcpy(cmd, args_value->cmd);
+
+    while(1)
+    {
+        memset(outbuf,0,MAX_INPUT_BUFFER);
+        //send msg
+        if(!task_flag)
+        {
+            break;
+        }
+        if(strcmp(cmd, "check_disk") == 0)
+        {
+            fprintf(stdout,"time: %d cmd: %s\n",time,cmd);
+            strcpy(buf, "{\"report\":[{\"values\":{\"PF_SERVER_DISK_IOTIMES\":\"NA\",\"PF_SERVER_DISK_WAITTIME\":\"0.38\",\"PF_SERVER_DISK_BUSYRATE\":\"0.04\",\"PF_SERVER_DISK_IOBYTES\":\"57.73\",\"PF_SERVER_DISK_NAME\":\"cciss/c0d0p1\"},\"neId\":\"402885ef5c103953015c104e0c920001\",\"neTopType\":\"PF-SERVER-UNIX\",\"neType\":\"PF-SERVER-UNIX-DISKIO\",\"neName\":\"cciss/c0d0p1\"}]}");
+            len = strlen(buf);
+            len = pack_msg(buf, len,outbuf);
+            report_tcp_information(outbuf, len);
+           // command *tempcommand = find_command(cmd);
+           // printf("\n\n%s:%s\n\n",tempcommand->command_name,tempcommand->command_line);
+        }
+        else if(strcmp(cmd, "check_cpu") == 0)
+        {
+            command *tempcommand = find_command(cmd);
+            printf("\n\n%s:%s\n\n",tempcommand->command_name,tempcommand->command_line);
+        }
+        else if(strcmp(cmd, "ACK") == 0)
+        {
+            fprintf(stdout,"time: %d cmd: %s\n",time,cmd);
+            strcpy(buf, "\"report\":[{\"values\":{},\"neId\":\"402885ef5c103953015c104e0c920001\",\"neTopType\":\"\",\"neType\":\"\",\"neName\":\"\",\"dataType\":0}]");
+            len = strlen(buf);
+            len = pack_msg(buf, len,outbuf);
+            report_tcp_information(outbuf, len);
+        }
+       /* len = pack_msg(cmd, len,outbuf);
+        report_tcp_information(outbuf, len);*/
+        fprintf(stdout, "\n%s:%d\n", server_address, server_port);
+        sleep(time);
+        //sleep(100);
+    }
+    return ;
+}
+
+void usage(int result)
+{
+	printf("\n");
+	printf("Welcome to use XNRPE\n");
+	printf("License: GPL v2 with exemptions (-h for more info)\n");
+
+	printf("\n");
+	if (result != OK || show_help == true)
+    {
+		printf("Usage: xnrpe -c <config_file> \n");
+		printf("\n");
+		printf("Options:\n");
+		printf(" -c <config_file> = Name of config file to use\n");
+		printf("\n");
+	}
+	exit(ERROR);
+}
+int process_arguments(int argc, char **argv)
+{
+    char      optchars[MAX_INPUT_BUFFER];
+	int       c = 1;
+
+	/* no options were supplied */
+	if (argc < 2)
+		return ERROR;
+
+	snprintf(optchars, MAX_INPUT_BUFFER, "c:h");
+
+	while (1) {
+		c = getopt(argc, argv, optchars);
+		if (c == -1 || c == EOF)
+			break;
+		/* process all arguments */
+		switch (c) {
+
+		case '?':
+		case 'h':
+			show_help = true;
+			break;
+		case 'c':
+			strncpy(config_file, optarg, sizeof(config_file));
+			config_file[sizeof(config_file) - 1] = '\x0';
+			break;
+		default:
+			return ERROR;
+		}
+	}
+	return OK;
+}
+
+int add_command(char *command_name, char *command_line)
+{
+    command *new_command;
+    if(command_name == NULL||command_line == NULL)
+    {
+        return ERROR;
+    }
+    new_command = (command *)malloc(sizeof(command));
+    if(new_command == NULL)
+    {
+        return ERROR;
+    }
+    new_command->command_name = strdup(command_name);
+    if(new_command->command_name == NULL)
+    {
+        free(new_command);
+        return ERROR;
+    }
+    new_command->command_line = strdup(command_line);
+    if(new_command->command_line == NULL)
+    {
+        free(new_command->command_name);
+        free(new_command);
+        return ERROR;
+    }
+    new_command->next = command_list;
+    command_list = new_command;
+
+    return OK;
+}
+
+command *find_command(char *command_name)
+{
+    command *temp_command;
+    for(temp_command = command_list; temp_command != NULL; temp_command=temp_command->next)
+    {
+        if(!strcmp(command_name, temp_command->command_name))
+            return temp_command;
+    }
+    return NULL;
+}
+
+/* free all allocated memory */
+void free_memory(void)
+{
+	command  *this_command;
+	command  *next_command;
+
+	/* free memory for the command list */
+	this_command = command_list;
+	while (this_command != NULL) {
+		next_command = this_command->next;
+		if (this_command->command_name)
+			free(this_command->command_name);
+		if (this_command->command_line)
+			free(this_command->command_line);
+		free(this_command);
+		this_command = next_command;
+	}
+
+	command_list = NULL;
+	return;
+}
+
+int read_config_file(char *filename)
+{
+	struct stat st;
+	FILE *fp;
+	char config_file[MAX_FILENAME_LENGTH];
+	char input_buffer[MAX_INPUT_BUFFER];
+	char *input_line;
+	char *temp_buffer;
+	char *varname;
+	char *varvalue;
+	int line = 0;
+	int len = 0;
+	int x = 0;
+	fp = fopen(filename , "r");
+	if(fp == NULL)
 	{
-		if (sigrestart == TRUE || sigshutdown == TRUE)
-			break;
-		for (i = 0; i < num_listen_socks; i++)
+		return ERROR;
+	}
+	while(fgets(input_buffer, MAX_INPUT_BUFFER-1,fp))
+	{
+		line++;
+		input_line = input_buffer;
+		//skip leading whitespace
+		while(isspace(*input_line))
+			++input_line;
+		// trim trailing whitespace
+		len = strlen(input_line);
+		for(x = len -1; x >= 0; x--)
 		{
-			if(listen_socks[i] > maxfd)
-				maxfd = listen_socks[i];
-		}
-		if (fdset != NULL)
-			free(fdset);
-		for (i = 0; i < num_listen_socks; i++)
-		{
-			FD_SET(listen_socks[i], fdset);
-		}
-		retval = select(maxfd+1, fdset, NULL, NULL, NULL);
-		if (sigrestart == TURE || sigshutdown == TRUE)
-			break;
-		if(retval < 0)
-			continue;
-		for (i = 0; i < num_listen_socks ; i++)
-		{
-			if (!FD_ISSET(listen_socks[i], fdset))
-				continue;
-			fromlen = (socklen_t)sizeof(from);
-
-			new_fd = accept(listen_socks[i], (struct sockaddr *)&from, &fromlen);
-			if(new_sd < 0)
-			{
-				if (sigrestart == TRUE || sigshutdown == TRUE)
-					break;
-				if (errno == EWOULDBLOCK ||  errno == EINTR)
-					continue;
-				if (errno == EAGAIN)
-					continue;
-				if (errno == ENOBUFS)
-					continue;
+			if(isspace(input_line[x]))
+				input_line[x] = '\x0';
+			else
 				break;
-			}
 		}
 
-		rc = wait_conn_fork(new_sd);
-		if (rc == TRUE)
+		//skip comments and blank lines
+		if(input_line[0] == '#' || input_line[0] == '\x0' || input_line[0] == '\n')
 			continue;
-		conn_check_peer(new_sd);
-		handle_connection(new_sd);
-		close(new_sd);
-		exit(STATE_OK);
+		//get the variable name
+		varname = strtok(input_line,"=");
+		if(varname == NULL)
+		{
+			fprintf(stdout, "No variable name specified in config file %s - Line %d\n", filename, line);
+			return ERROR;
+		}
+		//get the variable value
+		varvalue = strtok(NULL,"\n");
+		if(varvalue == NULL)
+		{
+			fprintf(stdout, "No variable name specified in config file %s - Line %d\n", filename, line);
+			return ERROR;
+		}
+		else if(!strcmp(varname,"server_address"))
+		{
+			strncpy(server_address, varvalue, sizeof(server_address)-1);
+			server_address[sizeof(server_address)-1] = '\0';
+		}
+		else if(!strcmp(varname,"server_port"))
+		{
+            server_port = atoi(varvalue);
+            if(server_port < 1024)
+            {
+                fprintf(stdout,"Invalid port number specified in config file '%s' - Line %d\n",filename, line);
+                return ERROR;
+            }
+		}
+		else if(strstr(input_line, "command["))
+        {
+            temp_buffer = strtok(varname,"[");
+            temp_buffer = strtok(NULL,"]");
+            if(temp_buffer == NULL)
+            {
+                fprintf(stdout, "Invalid command specified in config file '%s' - Line %d\n",filename, line);
+                return ERROR;
+            }
+            add_command(temp_buffer, varvalue);
+        }
+        else
+        {
+           fprintf(stdout, "Unknown option specified in config file '%s' - Line %d\n",filename, line);
+            continue;
+        }
 	}
-	return ;
+	fclose(fp);
+	return OK;
 }
-
-void setup_wait_conn(void)
-{
-	return ;
-}
-
-void conn_check_peer(int sock)
-{
-	return ;
-}
-
-void handle_connection(int sock)
-{
-	return ;
-}
-void init_handle_conn(void)
-{
-	return ;
-}
-
 
 int main(int argc,char **argv)
 {
-	int result = OK;
-	int x;
-	unsigned int y;
+    struct sigaction action;
+    int result = OK;
+    int epfd;
+    pthread_t tid,tid1;
+	char buffer[MAX_INPUT_BUFFER];
 
+    result = process_arguments(argc, argv);
+    if(result != OK || show_help == true)
+    {
+        usage(result);
+        exit(ERROR);
+    }
+    printf("%s\n", config_file);
+
+	if (config_file[0] != '/')
+	{
+		strncpy(buffer, config_file, sizeof(buffer));
+		buffer[sizeof(buffer)-1] = '\x0';
+		strcpy(config_file, "");
+		getcwd(config_file,sizeof(config_file));
+		strncat(config_file, "/", sizeof(config_file) - 2);
+		config_file[sizeof(config_file) - 1] = '\x0';
+		//append the config file to the path
+		strncat(config_file, buffer, sizeof(config_file) - strlen(config_file) - 1);
+		config_file[sizeof(config_file)-1]='\x0';
+	}
+
+	//read the config file
+	result = read_config_file(config_file);
+	/*****/
+
+    action.sa_handler = handle_pipe;
+    sigemptyset(&action.sa_mask);
+    action.sa_flags = 0;
+    sigaction(SIGPIPE, &action, NULL);
+
+    /*int epfd = epoll_create(EPOLL_LEN);
+    if(epfd < 0)
+    {
+        perror("epoll_create");
+        return ERROR;
+    }
+    if((fd = start_connect(host, DEFAULT_SERVER_PORT)) < 0)
+    {
+        perror("socket error");
+        return ERROR;
+    }
+    setnonblocking(fd);
+    event.data.fd = fd;
+    event.enents = EPOLLIN|EPOLLET;
+    if( 0 != epoll_ctrl(epfd, EPOLL_CTL_ADD, fd, &event))
+    {
+        perror("epoll_ctrl");
+        close(fd);
+        return ERROR;
+    }
+    */
+    ARGS args;
+    ARGS args1;
+    args.time=5;
+    strcpy(args.cmd,"check_disk");
+    args1.time=10;
+    strcpy(args1.cmd,"ACK");
+
+    int ret = pthread_create(&tid, NULL, task, (void *)&args);
+    if(ret)
+    {
+        perror("pthread_create  threard_heart_beat Fail!");
+        return -1;
+    }
+
+    int ret1 = pthread_create(&tid1, NULL, task, (void *)&args1);
+    if(ret1)
+    {
+        perror("pthread_create  threard_heart_beat Fail!");
+        return -1;
+    }
+    //register signal
+    signal(SIGINT,fun_int);
+	signal(SIGTERM,fun_term);
+
+    while(signal_flag_int&&signal_flag_term)
+    {
+        sleep(1);
+    }
+    pthread_cancel(tid);
+    pthread_join(tid, NULL);
+    pthread_cancel(tid1);
+    pthread_join(tid1, NULL);
+    free_memory();
+    fprintf(stdout, "\nexit success!\n");
+    return 0;
 }
-
