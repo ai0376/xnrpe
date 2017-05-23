@@ -110,10 +110,10 @@ int send_tcp_all(int s,char *buf, int len)
 int pack_msg(char *inbuf, unsigned int len, char *outbuf)
 {
     char head[6]={0x00,0x00,0x00,0x00,0x00,0x00};
-	head[5] = 0x000000ff & len;
-    head[4] = 0x0000ff00 & len;
-    head[3] = 0x00ff0000 & len;
-    head[2] = 0xff000000 & len;
+	head[2]=0x000000ff&(len >> 24);
+    head[3]=0x000000ff&(len >> 16);
+    head[4]=0x000000ff&(len >> 8);
+    head[5]=0x000000ff&(len >> 0);
     memcpy((void *)outbuf,(void *)&head, 6);
     memcpy((void *)(outbuf+6), (void *)inbuf, len);
 	return (6+len);

@@ -57,7 +57,7 @@ void *task(void *args)
         if(strcmp(cmd, "check_disk") == 0)
         {
             fprintf(stdout,"time: %d cmd: %s\n",time,cmd);
-            strcpy(buf, "{\"report\":[{\"values\":{\"PF_SERVER_DISK_IOTIMES\":\"NA\",\"PF_SERVER_DISK_WAITTIME\":\"0.38\",\"PF_SERVER_DISK_BUSYRATE\":\"0.04\",\"PF_SERVER_DISK_IOBYTES\":\"57.73\",\"PF_SERVER_DISK_NAME\":\"cciss/c0d0p1\"},\"neId\":\"402885ef5c103953015c104e0c920001\",\"neTopType\":\"PF-SERVER-UNIX\",\"neType\":\"PF-SERVER-UNIX-DISKIO\",\"neName\":\"cciss/c0d0p1\"}]}");
+            strcpy(buf, "[{\"values\":{\"PF_SERVER_DISK_IOTIMES\":\"NA\",\"PF_SERVER_DISK_WAITTIME\":\"0.38\",\"PF_SERVER_DISK_BUSYRATE\":\"0.04\",\"PF_SERVER_DISK_IOBYTES\":\"57.73\",\"PF_SERVER_DISK_NAME\":\"cciss/c0d0p1\"},\"neId\":\"402885ef5c103953015c104e0c920001\",\"neTopType\":\"PF-SERVER-UNIX\",\"neType\":\"PF-SERVER-UNIX-DISKIO\",\"neName\":\"cciss/c0d0p1\"}]");
             len = strlen(buf);
             len = pack_msg(buf, len,outbuf);
             report_tcp_information(outbuf, len);
@@ -72,7 +72,7 @@ void *task(void *args)
         else if(strcmp(cmd, "ACK") == 0)
         {
             fprintf(stdout,"time: %d cmd: %s\n",time,cmd);
-            strcpy(buf, "\"report\":[{\"values\":{},\"neId\":\"402885ef5c103953015c104e0c920001\",\"neTopType\":\"\",\"neType\":\"\",\"neName\":\"\",\"dataType\":0}]");
+            strcpy(buf, "[{\"values\":{},\"neId\":\"402885ef5c103953015c104e0c920001\",\"neTopType\":\"\",\"neType\":\"\",\"neName\":\"\",\"dataType\":0}]");
             len = strlen(buf);
             len = pack_msg(buf, len,outbuf);
             report_tcp_information(outbuf, len);
