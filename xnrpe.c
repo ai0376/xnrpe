@@ -79,7 +79,6 @@ void *task(void *args)
         }
        /* len = pack_msg(cmd, len,outbuf);
         report_tcp_information(outbuf, len);*/
-        fprintf(stdout, "\n%s:%d\n", server_address, server_port);
         sleep(time);
         //sleep(100);
     }

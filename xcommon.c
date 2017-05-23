@@ -62,7 +62,8 @@ int report_tcp_information(char *info, int len)
     struct sockaddr_in address;
     memset(&address, 0, sizeof(address));
     address.sin_family = AF_INET;
-    address.sin_port = htons(DEFAULT_SERVER_PORT);
+    fprintf("\nremote:%s:%d\n",server_address,server_port);
+    address.sin_port = htons(server_port);
 
     if (resolve_host_name(server_address, &(address.sin_addr)) != 0)
     {
