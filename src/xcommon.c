@@ -101,23 +101,23 @@ int report_tcp_information(char *info, int len, int recv_flag)
 int send_tcp_and_recv(int s, char *buf, int len)
 {
     int total = 0;
-	int bytesleft = len;
-	int n = 0;
+    int bytesleft = len;
+    int n = 0;
 
-	/* send all the data */
-	while (total < len) {
-		n = send(s, buf + total, bytesleft, 0);	/* send some data */
-		if (n == -1)			/* break on error */
-			break;
-		/* apply bytes we sent */
-		total += n;
-		bytesleft -= n;
-	}
+    /* send all the data */
+    while (total < len) {
+        n = send(s, buf + total, bytesleft, 0); /* send some data */
+        if (n == -1)            /* break on error */
+            break;
+        /* apply bytes we sent */
+        total += n;
+        bytesleft -= n;
+    }
     printf("\n\nsend_tcp_all:%d----send total=%d\n\n",len,total);
-	len = total;
+    len = total;
 
-	char recv_buf[MAX_INPUT_BUFFER]="";
-	bzero(recv_buf, MAX_INPUT_BUFFER);
+    char recv_buf[MAX_INPUT_BUFFER]="";
+    bzero(recv_buf, MAX_INPUT_BUFFER);
     int recvd = recv(s, recv_buf,MAX_INPUT_BUFFER, 0);
     if(recvd == -1 &&errno == EAGAIN)
     {
@@ -129,33 +129,33 @@ int send_tcp_and_recv(int s, char *buf, int len)
 int send_tcp_all(int s,char *buf, int len)
 {
     int total = 0;
-	int bytesleft = len;
-	int n = 0;
+    int bytesleft = len;
+    int n = 0;
 
-	/* send all the data */
-	while (total < len) {
-		n = send(s, buf + total, bytesleft, 0);	/* send some data */
-		if (n == -1)			/* break on error */
-			break;
-		/* apply bytes we sent */
-		total += n;
-		bytesleft -= n;
-	}
+    /* send all the data */
+    while (total < len) {
+        n = send(s, buf + total, bytesleft, 0); /* send some data */
+        if (n == -1)            /* break on error */
+            break;
+        /* apply bytes we sent */
+        total += n;
+        bytesleft -= n;
+    }
     printf("\n\nsend_tcp_all:%d----send total=%d\n\n",len,total);
-	len = total;				/* return number of bytes actually sent here */
-	return n == -1 ? -1 : 0;	/* return -1 on failure, 0 on success */
+    len = total;                /* return number of bytes actually sent here */
+    return n == -1 ? -1 : 0;    /* return -1 on failure, 0 on success */
 }
 
 int pack_msg(char *inbuf, unsigned int len, char *outbuf)
 {
     char head[6]={0x00,0x00,0x00,0x00,0x00,0x00};
-	head[2]=0x000000ff&(len >> 24);
+    head[2]=0x000000ff&(len >> 24);
     head[3]=0x000000ff&(len >> 16);
     head[4]=0x000000ff&(len >> 8);
     head[5]=0x000000ff&(len >> 0);
     memcpy((void *)outbuf,(void *)&head, 6);
     memcpy((void *)(outbuf+6), (void *)inbuf, len);
-	return (6+len);
+    return (6+len);
 }
 
 

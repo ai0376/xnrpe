@@ -92,52 +92,52 @@ void *task(void *args)
 
 void usage(int result)
 {
-	printf("\n");
-	printf("Welcome to use XNRPE\n");
-	printf("License: GPL v2 with exemptions (-h for more info)\n");
+    printf("\n");
+    printf("Welcome to use XNRPE\n");
+    printf("License: GPL v2 with exemptions (-h for more info)\n");
 
-	printf("\n");
-	if (result != OK || show_help == true)
+    printf("\n");
+    if (result != OK || show_help == true)
     {
-		printf("Usage: xnrpe -c <config_file> \n");
-		printf("\n");
-		printf("Options:\n");
-		printf(" -c <config_file> = Name of config file to use\n");
-		printf("\n");
-	}
-	exit(ERROR);
+        printf("Usage: xnrpe -c <config_file> \n");
+        printf("\n");
+        printf("Options:\n");
+        printf(" -c <config_file> = Name of config file to use\n");
+        printf("\n");
+    }
+    exit(ERROR);
 }
 int process_arguments(int argc, char **argv)
 {
     char      optchars[MAX_INPUT_BUFFER];
-	int       c = 1;
+    int       c = 1;
 
-	/* no options were supplied */
-	if (argc < 2)
-		return ERROR;
+    /* no options were supplied */
+    if (argc < 2)
+        return ERROR;
 
-	snprintf(optchars, MAX_INPUT_BUFFER, "c:h");
+    snprintf(optchars, MAX_INPUT_BUFFER, "c:h");
 
-	while (1) {
-		c = getopt(argc, argv, optchars);
-		if (c == -1 || c == EOF)
-			break;
-		/* process all arguments */
-		switch (c) {
+    while (1) {
+        c = getopt(argc, argv, optchars);
+        if (c == -1 || c == EOF)
+            break;
+        /* process all arguments */
+        switch (c) {
 
-		case '?':
-		case 'h':
-			show_help = true;
-			break;
-		case 'c':
-			strncpy(config_file, optarg, sizeof(config_file));
-			config_file[sizeof(config_file) - 1] = '\x0';
-			break;
-		default:
-			return ERROR;
-		}
-	}
-	return OK;
+        case '?':
+        case 'h':
+            show_help = true;
+            break;
+        case 'c':
+            strncpy(config_file, optarg, sizeof(config_file));
+            config_file[sizeof(config_file) - 1] = '\x0';
+            break;
+        default:
+            return ERROR;
+        }
+    }
+    return OK;
 }
 
 int add_command(char *command_name, char *command_line)
@@ -185,87 +185,87 @@ command *find_command(char *command_name)
 /* free all allocated memory */
 void free_memory(void)
 {
-	command  *this_command;
-	command  *next_command;
+    command  *this_command;
+    command  *next_command;
 
-	/* free memory for the command list */
-	this_command = command_list;
-	while (this_command != NULL) {
-		next_command = this_command->next;
-		if (this_command->command_name)
-			free(this_command->command_name);
-		if (this_command->command_line)
-			free(this_command->command_line);
-		free(this_command);
-		this_command = next_command;
-	}
+    /* free memory for the command list */
+    this_command = command_list;
+    while (this_command != NULL) {
+        next_command = this_command->next;
+        if (this_command->command_name)
+            free(this_command->command_name);
+        if (this_command->command_line)
+            free(this_command->command_line);
+        free(this_command);
+        this_command = next_command;
+    }
 
-	command_list = NULL;
-	return;
+    command_list = NULL;
+    return;
 }
 
 int read_config_file(char *filename)
 {
-	struct stat st;
-	FILE *fp;
-	char config_file[MAX_FILENAME_LENGTH];
-	char input_buffer[MAX_INPUT_BUFFER];
-	char *input_line;
-	char *temp_buffer;
-	char *varname;
-	char *varvalue;
-	int line = 0;
-	int len = 0;
-	int x = 0;
-	fp = fopen(filename , "r");
-	if(fp == NULL)
-	{
-		return ERROR;
-	}
-	while(fgets(input_buffer, MAX_INPUT_BUFFER-1,fp))
-	{
-		line++;
-		input_line = input_buffer;
-		//skip leading whitespace
-		while(isspace(*input_line))
-			++input_line;
-		// trim trailing whitespace
-		len = strlen(input_line);
-		for(x = len -1; x >= 0; x--)
-		{
-			if(isspace(input_line[x]))
-				input_line[x] = '\x0';
-			else
-				break;
-		}
+    struct stat st;
+    FILE *fp;
+    char config_file[MAX_FILENAME_LENGTH];
+    char input_buffer[MAX_INPUT_BUFFER];
+    char *input_line;
+    char *temp_buffer;
+    char *varname;
+    char *varvalue;
+    int line = 0;
+    int len = 0;
+    int x = 0;
+    fp = fopen(filename , "r");
+    if(fp == NULL)
+    {
+        return ERROR;
+    }
+    while(fgets(input_buffer, MAX_INPUT_BUFFER-1,fp))
+    {
+        line++;
+        input_line = input_buffer;
+        //skip leading whitespace
+        while(isspace(*input_line))
+            ++input_line;
+        // trim trailing whitespace
+        len = strlen(input_line);
+        for(x = len -1; x >= 0; x--)
+        {
+            if(isspace(input_line[x]))
+                input_line[x] = '\x0';
+            else
+                break;
+        }
 
-		//skip comments and blank lines
-		if(input_line[0] == '#' || input_line[0] == '\x0' || input_line[0] == '\n')
-			continue;
-		//get the variable name
-		varname = strtok(input_line,"=");
-		if(varname == NULL)
-		{
-			fprintf(stdout, "No variable name specified in config file %s - Line %d\n", filename, line);
-			return ERROR;
-		}
-		//get the variable value
-		varvalue = strtok(NULL,"\n");
-		if(varvalue == NULL)
-		{
-			fprintf(stdout, "No variable name specified in config file %s - Line %d\n", filename, line);
-			return ERROR;
-		}
-		else if(!strcmp(varname,"server_address"))
-		{
+        //skip comments and blank lines
+        if(input_line[0] == '#' || input_line[0] == '\x0' || input_line[0] == '\n')
+            continue;
+        //get the variable name
+        varname = strtok(input_line,"=");
+        if(varname == NULL)
+        {
+            fprintf(stdout, "No variable name specified in config file %s - Line %d\n", filename, line);
+            return ERROR;
+        }
+        //get the variable value
+        varvalue = strtok(NULL,"\n");
+        if(varvalue == NULL)
+        {
+            fprintf(stdout, "No variable name specified in config file %s - Line %d\n", filename, line);
+            return ERROR;
+        }
+        else if(!strcmp(varname,"server_address"))
+        {
             strncpy(server_address, varvalue, sizeof(server_address)-1);
             server_address[sizeof(server_address)-1] = '\0';
-			#ifdef _XNRPE_DEBUG
+            #ifdef _XNRPE_DEBUG
             fprintf(stdout,"GET %s=%s\n",varname,varvalue);
-			#endif
-		}
-		else if(!strcmp(varname,"server_port"))
-		{
+            #endif
+        }
+        else if(!strcmp(varname,"server_port"))
+        {
             server_port = atoi(varvalue);
             if(server_port < 1024)
             {
@@ -275,8 +275,8 @@ int read_config_file(char *filename)
             #ifdef _XNRPE_DEBUG
             fprintf(stdout,"GET %s=%s\n",varname,varvalue);
             #endif // _XNRPE_DEBUG
-		}
-		else if(!strcmp(varname, "sock_send_recv_timeout"))
+        }
+        else if(!strcmp(varname, "sock_send_recv_timeout"))
         {
             sock_send_recv_timeout = atoi(varvalue);
             if(sock_send_recv_timeout < 0)
@@ -287,7 +287,7 @@ int read_config_file(char *filename)
             fprintf(stdout, "GET %s=%s\n",varname,varvalue);
             #endif // _XNRPE_DEBUG
         }
-		else if(strstr(input_line, "command["))
+        else if(strstr(input_line, "command["))
         {
             temp_buffer = strtok(varname,"[");
             temp_buffer = strtok(NULL,"]");
@@ -306,9 +306,9 @@ int read_config_file(char *filename)
             fprintf(stdout, "Unknown option specified in config file '%s' - Line %d\n",filename, line);
             continue;
         }
-	}
-	fclose(fp);
-	return OK;
+    }
+    fclose(fp);
+    return OK;
 }
 
 int main(int argc,char **argv)
@@ -317,7 +317,7 @@ int main(int argc,char **argv)
     int result = OK;
     int epfd;
     pthread_t tid,tid1;
-	char buffer[MAX_INPUT_BUFFER];
+    char buffer[MAX_INPUT_BUFFER];
 
     result = process_arguments(argc, argv);
     if(result != OK || show_help == true)
@@ -327,22 +327,22 @@ int main(int argc,char **argv)
     }
     printf("%s\n", config_file);
 
-	if (config_file[0] != '/')
-	{
-		strncpy(buffer, config_file, sizeof(buffer));
-		buffer[sizeof(buffer)-1] = '\x0';
-		strcpy(config_file, "");
-		getcwd(config_file,sizeof(config_file));
-		strncat(config_file, "/", sizeof(config_file) - 2);
-		config_file[sizeof(config_file) - 1] = '\x0';
-		//append the config file to the path
-		strncat(config_file, buffer, sizeof(config_file) - strlen(config_file) - 1);
-		config_file[sizeof(config_file)-1]='\x0';
-	}
+    if (config_file[0] != '/')
+    {
+        strncpy(buffer, config_file, sizeof(buffer));
+        buffer[sizeof(buffer)-1] = '\x0';
+        strcpy(config_file, "");
+        getcwd(config_file,sizeof(config_file));
+        strncat(config_file, "/", sizeof(config_file) - 2);
+        config_file[sizeof(config_file) - 1] = '\x0';
+        //append the config file to the path
+        strncat(config_file, buffer, sizeof(config_file) - strlen(config_file) - 1);
+        config_file[sizeof(config_file)-1]='\x0';
+    }
 
-	//read the config file
-	result = read_config_file(config_file);
-	/*****/
+    //read the config file
+    result = read_config_file(config_file);
+    /*****/
 
     action.sa_handler = handle_pipe;
     sigemptyset(&action.sa_mask);
@@ -393,7 +393,7 @@ int main(int argc,char **argv)
     }*/
     //register signal
     signal(SIGINT,fun_int);
-	signal(SIGTERM,fun_term);
+    signal(SIGTERM,fun_term);
 
     while(signal_flag_int&&signal_flag_term)
     {
