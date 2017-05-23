@@ -23,11 +23,11 @@ int signal_flag_int = true;
 int signal_flag_term = true;
 void fun_int(int arg)
 {
-	signal_flag_int = false;
+    signal_flag_int = false;
 }
 void fun_term(int arg)
 {
-	signal_flag_term = false;
+    signal_flag_term = false;
 }
 
 void handle_pipe(int sig)
@@ -86,7 +86,6 @@ void *task(void *args)
        /* len = pack_msg(cmd, len,outbuf);
         report_tcp_information(outbuf, len);*/
         sleep(time);
-        //sleep(100);
     }
     return ;
 }
@@ -259,8 +258,8 @@ int read_config_file(char *filename)
 		}
 		else if(!strcmp(varname,"server_address"))
 		{
-			strncpy(server_address, varvalue, sizeof(server_address)-1);
-			server_address[sizeof(server_address)-1] = '\0';
+            strncpy(server_address, varvalue, sizeof(server_address)-1);
+            server_address[sizeof(server_address)-1] = '\0';
 			#ifdef _XNRPE_DEBUG
             fprintf(stdout,"GET %s=%s\n",varname,varvalue);
 			#endif
