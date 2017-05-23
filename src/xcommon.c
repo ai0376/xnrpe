@@ -57,9 +57,10 @@ int start_connect(char *host, int port)
     return fd;
 }
 
-int report_tcp_information(char *info, int len)
+int report_tcp_information(char *info, int len, int recv_flag)
 {
     struct sockaddr_in address;
+    struct timeval timeout={5,0};;
     memset(&address, 0, sizeof(address));
     address.sin_family = AF_INET;
     fprintf(stdout,"\nremote:%s:%d\n",server_address,server_port);
@@ -82,9 +83,47 @@ int report_tcp_information(char *info, int len)
         return ERROR;
     }
 
-    int ret = send_tcp_all(fd , info, len);
+    setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
+    setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+    int ret = 0;
+    if(recv_flag)
+    {
+        ret = send_tcp_and_recv(fd, info, len);
+    }
+    else
+    {
+        ret = send_tcp_all(fd , info, len);
+    }
     close(fd);
     return ret;
+}
+
+int send_tcp_and_recv(int s, char *buf, int len)
+{
+    int total = 0;
+	int bytesleft = len;
+	int n = 0;
+
+	/* send all the data */
+	while (total < len) {
+		n = send(s, buf + total, bytesleft, 0);	/* send some data */
+		if (n == -1)			/* break on error */
+			break;
+		/* apply bytes we sent */
+		total += n;
+		bytesleft -= n;
+	}
+    printf("\n\nsend_tcp_all:%d----send total=%d\n\n",len,total);
+	len = total;
+
+	char recv_buf[MAX_INPUT_BUFFER]="";
+	bzero(recv_buf, MAX_INPUT_BUFFER);
+    int recvd = recv(s, recv_buf,MAX_INPUT_BUFFER, 0);
+    if(recvd == -1 &&errno == EAGAIN)
+    {
+        fprintf(stdout, "\nrecv timeout\n");
+    }
+    return recvd;
 }
 
 int send_tcp_all(int s,char *buf, int len)

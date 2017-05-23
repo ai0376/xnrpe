@@ -64,7 +64,7 @@ int main(int argc, char * argv[])
 		exit(EXIT_FAILURE);
 	}
 	int nfds;
-
+	int count = 0;
     while(1)
 	{
 		struct epoll_event events[MAX_EVENTS];
@@ -86,7 +86,7 @@ int main(int argc, char * argv[])
 					perror("accept client_sockfd failed");
 					exit(EXIT_FAILURE);
 				}
-
+				count++;
 				ev.events=EPOLLIN;
 				ev.data.fd=client_sockfd;
 				if(epoll_ctl(epoll_fd,EPOLL_CTL_ADD,client_sockfd,&ev)==-1)
@@ -95,6 +95,7 @@ int main(int argc, char * argv[])
 					exit(EXIT_FAILURE);
 				}
 				printf("\n\naccept client %s\n",inet_ntoa(remote_addr.sin_addr));
+				printf("\ncount:%d\n",count);
 			}
 			else if(events[i].events & EPOLLIN)
 			{
@@ -108,9 +109,10 @@ int main(int argc, char * argv[])
 					event_del.data.fd = events[i].data.fd;
 					event_del.events = 0;
 					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_del.data.fd, &event_del);
-					printf("\n\nxxx\n");
+					printf("\n\nxxx---%d\n",count);
+					close(events[i].data.fd);
 				}
-				printf("receive from client:%d\n\n",len);
+				printf("receive from client:%d-----%d\n\n",len,count);
 			}
 			else
 			{

@@ -52,8 +52,9 @@ int resolve_host_name(char* hostname, struct in_addr* addr);
 
 int start_connect(char *host, int port);
 
-int report_tcp_information(char *info , int len);
+int report_tcp_information(char *info , int len, int recv_flag);
 int send_tcp_all(int s,char *buf, int len);
+int send_tcp_and_recv(int s, char *buf, int len);
 int pack_msg(char *inbuf, unsigned int len, char *outbuf);
 
 

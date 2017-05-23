@@ -45,7 +45,6 @@ void *task(void *args)
     char outbuf[MAX_INPUT_BUFFER]="";
     int len = 0;
     strcpy(cmd, args_value->cmd);
-
     while(1)
     {
         memset(outbuf,0,MAX_INPUT_BUFFER);
@@ -60,14 +59,19 @@ void *task(void *args)
             strcpy(buf, "[{\"values\":{\"PF_SERVER_DISK_IOTIMES\":\"NA\",\"PF_SERVER_DISK_WAITTIME\":\"0.38\",\"PF_SERVER_DISK_BUSYRATE\":\"0.04\",\"PF_SERVER_DISK_IOBYTES\":\"57.73\",\"PF_SERVER_DISK_NAME\":\"cciss/c0d0p1\"},\"neId\":\"402885ef5c103953015c104e0c920001\",\"neTopType\":\"PF-SERVER-UNIX\",\"neType\":\"PF-SERVER-UNIX-DISKIO\",\"neName\":\"cciss/c0d0p1\"}]");
             len = strlen(buf);
             len = pack_msg(buf, len,outbuf);
-            report_tcp_information(outbuf, len);
+            report_tcp_information(outbuf, len, 0);
            // command *tempcommand = find_command(cmd);
            // printf("\n\n%s:%s\n\n",tempcommand->command_name,tempcommand->command_line);
         }
         else if(strcmp(cmd, "check_cpu") == 0)
         {
-            command *tempcommand = find_command(cmd);
-            printf("\n\n%s:%s\n\n",tempcommand->command_name,tempcommand->command_line);
+            /*command *tempcommand = find_command(cmd);
+            printf("\n\n%s:%s\n\n",tempcommand->command_name,tempcommand->command_line);*/
+            fprintf(stdout,"time: %d cmd: %s\n",time,cmd);
+            strcpy(buf, "[{\"values\":{\"PF_SERVER_DISK_IOTIMES\":\"NA\",\"PF_SERVER_DISK_WAITTIME\":\"0.38\",\"PF_SERVER_DISK_BUSYRATE\":\"0.04\",\"PF_SERVER_DISK_IOBYTES\":\"57.73\",\"PF_SERVER_DISK_NAME\":\"cciss/c0d0p1\"},\"neId\":\"402885ef5c103953015c104e0c920001\",\"neTopType\":\"PF-SERVER-UNIX\",\"neType\":\"PF-SERVER-UNIX-DISKIO\",\"neName\":\"cciss/c0d0p1\"}]");
+            len = strlen(buf);
+            len = pack_msg(buf, len,outbuf);
+            report_tcp_information(outbuf, len,0);
         }
         else if(strcmp(cmd, "ACK") == 0)
         {
@@ -75,7 +79,7 @@ void *task(void *args)
             strcpy(buf, "[{\"values\":{},\"neId\":\"402885ef5c103953015c104e0c920001\",\"neTopType\":\"\",\"neType\":\"\",\"neName\":\"\",\"dataType\":0}]");
             len = strlen(buf);
             len = pack_msg(buf, len,outbuf);
-            report_tcp_information(outbuf, len);
+            report_tcp_information(outbuf, len, 0);
         }
        /* len = pack_msg(cmd, len,outbuf);
         report_tcp_information(outbuf, len);*/
@@ -347,8 +351,9 @@ int main(int argc,char **argv)
     */
     ARGS args;
     ARGS args1;
-    args.time=500;
-    strcpy(args.cmd,"check_disk");
+    args.time=1;
+    //strcpy(args.cmd,"check_disk");
+    strcpy(args.cmd,"check_cpu");
     args1.time=10;
     strcpy(args1.cmd,"ACK");
 
