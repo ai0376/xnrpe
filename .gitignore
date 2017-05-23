@@ -1,0 +1,3 @@
+./src/xnrpe
+./src/*.o
+./test_codes/*.o
