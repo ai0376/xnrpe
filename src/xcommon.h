@@ -30,9 +30,11 @@
 #define EPOLL_LEN 20480
 #define MAX_INPUT_BUFFER 2048
 #define MAX_FILENAME_LENGTH 256
+#define DEFAULT_SOCK_SEND_RECV_TIMEOUT 10 //seconds
 
 extern char server_address[NI_MAXHOST];
 extern int server_port;
+extern int sock_send_recv_timeout;
 
 typedef struct args{
     int time; //seconds

@@ -60,7 +60,7 @@ int start_connect(char *host, int port)
 int report_tcp_information(char *info, int len, int recv_flag)
 {
     struct sockaddr_in address;
-    struct timeval timeout={5,0};;
+    struct timeval timeout={sock_send_recv_timeout,0};;
     memset(&address, 0, sizeof(address));
     address.sin_family = AF_INET;
     fprintf(stdout,"\nremote:%s:%d\n",server_address,server_port);

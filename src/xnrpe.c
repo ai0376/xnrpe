@@ -3,6 +3,8 @@
 command  *command_list = NULL;
 char server_address[NI_MAXHOST]="";
 int server_port=DEFAULT_SERVER_PORT;
+int sock_send_recv_timeout = DEFAULT_SOCK_SEND_RECV_TIMEOUT;
+
 extern int errno;
 struct epoll_event event;
 struct epoll_event ev[EPOLL_LEN];
@@ -259,6 +261,9 @@ int read_config_file(char *filename)
 		{
 			strncpy(server_address, varvalue, sizeof(server_address)-1);
 			server_address[sizeof(server_address)-1] = '\0';
+			#ifdef _XNRPE_DEBUG
+            fprintf(stdout,"GET %s=%s\n",varname,varvalue);
+			#endif
 		}
 		else if(!strcmp(varname,"server_port"))
 		{
@@ -268,7 +273,21 @@ int read_config_file(char *filename)
                 fprintf(stdout,"Invalid port number specified in config file '%s' - Line %d\n",filename, line);
                 return ERROR;
             }
+            #ifdef _XNRPE_DEBUG
+            fprintf(stdout,"GET %s=%s\n",varname,varvalue);
+            #endif // _XNRPE_DEBUG
 		}
+		else if(!strcmp(varname, "sock_send_recv_timeout"))
+        {
+            sock_send_recv_timeout = atoi(varvalue);
+            if(sock_send_recv_timeout < 0)
+            {
+                sock_send_recv_timeout = DEFAULT_SOCK_SEND_RECV_TIMEOUT;
+            }
+            #ifdef _XNRPE_DEBUG
+            fprintf(stdout, "GET %s=%s\n",varname,varvalue);
+            #endif // _XNRPE_DEBUG
+        }
 		else if(strstr(input_line, "command["))
         {
             temp_buffer = strtok(varname,"[");
@@ -279,10 +298,13 @@ int read_config_file(char *filename)
                 return ERROR;
             }
             add_command(temp_buffer, varvalue);
+            #ifdef _XNRPE_DEBUG
+            fprintf(stdout, "GET %s=%s\n",temp_buffer, varvalue);
+            #endif // _XNRPE_DEBUG
         }
         else
         {
-           fprintf(stdout, "Unknown option specified in config file '%s' - Line %d\n",filename, line);
+            fprintf(stdout, "Unknown option specified in config file '%s' - Line %d\n",filename, line);
             continue;
         }
 	}
