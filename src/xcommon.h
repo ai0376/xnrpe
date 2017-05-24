@@ -91,6 +91,9 @@ void free_memory(void);
 
 
 /********hand heartbeat respon json msg********/
+/*
+json example: [{"command":"check_disk","id":"001"}]
+*/
 int handle_heartbeat_respon_msg(char *str);
 
 

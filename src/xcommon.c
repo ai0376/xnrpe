@@ -182,6 +182,9 @@ int handle_response_message(char *buf, int len)
 
 }
 
+/*
+json example: [{"command":"check_disk","id":"001"}]
+*/
 int handle_heartbeat_respon_msg(char *str)
 {
     int i;
