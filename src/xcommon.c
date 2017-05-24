@@ -1,4 +1,5 @@
 #include "xcommon.h"
+#include "cJSON.h"
 
 int setnonblocking(int sock)
 {
@@ -87,19 +88,18 @@ int report_tcp_information(char *info, int len, int recv_flag)
     setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
     setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
     int ret = 0;
+    ret = send_tcp_all(fd , info, len);
     if(recv_flag)
     {
-        ret = send_tcp_and_recv(fd, info, len);
-    }
-    else
-    {
-        ret = send_tcp_all(fd , info, len);
+        ret = read_response(fd, info);
+        if(ret > 0)
+            handle_response_message(info, ret);
     }
     close(fd);
     return ret;
 }
 
-int send_tcp_and_recv(int s, char *buf, int len)
+int send_tcp_all(int s,char *buf, int len)
 {
     int total = 0;
     int bytesleft = len;
@@ -116,36 +116,46 @@ int send_tcp_and_recv(int s, char *buf, int len)
         bytesleft -= n;
     }
     printf("\n\nsend_tcp_all:%d----send total=%d\n\n",len,total);
-    len = total;
-
-    char recv_buf[MAX_INPUT_BUFFER]="";
-    bzero(recv_buf, MAX_INPUT_BUFFER);
-    int recvd = recv(s, recv_buf,MAX_INPUT_BUFFER, 0);
-    if(recvd == -1 &&errno == EAGAIN)
-    {
-        fprintf(stdout, "\nrecv timeout\n");
-    }
-    return recvd;
-}
-
-int send_tcp_all(int s,char *buf, int len)
-{
-    int total = 0;
-    int bytesleft = len;
-    int n = 0;
-
-    /* send all the data */
-    while (total < len) {
-        n = send(s, buf + total, bytesleft, 0); /* send some data */
-        if (n == -1)            /* break on error */
-            break;
-        /* apply bytes we sent */
-        total += n;
-        bytesleft -= n;
-    }
-    printf("\n\nsend_tcp_all:%d----send total=%d\n\n",len,total);
     len = total;                /* return number of bytes actually sent here */
     return n == -1 ? -1 : 0;    /* return -1 on failure, 0 on success */
+}
+
+int read_response(int sock, char *buf)
+{
+    int common_size,total,json_size;
+    total = 0;
+    common_size = 6;
+
+    int recvd = recv(sock, buf, MAX_INPUT_BUFFER, 0);
+    if(recvd == -1 && errno == EAGAIN)
+    {
+        fprintf(stdout, "recv timeout\n");
+        return -1;
+    }
+    else if(recvd <= 0)
+    {
+        fprintf(stdout, "recv failed\n");
+        return -1;
+    }
+    total += recvd;
+    json_size =((buf[2]&0xFF)<<24|(buf[3]&0xFF)<<16|(buf[4]&0xFF)<<8|(buf[5]&0xFF)<<0);
+    common_size = json_size+6;
+    while(total < common_size)
+    {
+        recvd = recv(sock, buf+total,MAX_INPUT_BUFFER, 0);
+        if(recvd == -1 && errno == EAGAIN)
+        {
+            fprintf(stdout, "recv timeout\n");
+            return -1;
+        }
+        else if(recvd <= 0)
+        {
+            fprintf(stdout, "recv failed\n");
+            return -1;
+        }
+        total += recvd;
+    }
+    return total;
 }
 
 int pack_msg(char *inbuf, unsigned int len, char *outbuf)
@@ -158,6 +168,62 @@ int pack_msg(char *inbuf, unsigned int len, char *outbuf)
     memcpy((void *)outbuf,(void *)&head, 6);
     memcpy((void *)(outbuf+6), (void *)inbuf, len);
     return (6+len);
+}
+
+int handle_response_message(char *buf, int len)
+{
+    char *msg = buf;
+    char temp[MAX_INPUT_BUFFER]="";
+    int json_size = ((buf[2]&0xFF)<<24|(buf[3]&0xFF)<<16|(buf[4]&0xFF)<<8|(buf[5]&0xFF)<<0);
+    printf("\nlen = %d, json_size=%d\n", len,json_size);
+    memcpy(temp, msg+6, json_size);
+    printf("json: %s\n",temp);
+    return 0;
+
+}
+
+int handle_heartbeat_respon_msg(char *str)
+{
+    int i;
+
+    cJSON *root =cJSON_Parse(str);
+    if(root == NULL)
+    {
+        fprintf(stdout, "Json Parse error");
+        return -1;
+    }
+    if(!cJSON_IsArray(root))
+    {
+        fprintf(stdout, "item not array");
+        cJSON_Delete(root);
+        return -1;
+    }
+    for(i = 0 ; i < cJSON_GetArraySize(root); i++)
+    {
+        cJSON *obj = cJSON_GetArrayItem(root, i);
+        if(cJSON_HasObjectItem(obj,"command"))
+        {
+            cJSON* cmd_obj = cJSON_GetObjectItem(obj,"command");
+        }
+        if(cJSON_HasObjectItem(obj,"id"))
+        {
+            cJSON* id_obj = cJSON_GetObjectItem(obj,"id");
+        }
+
+        // add cmd_name & id  in list
+
+    }
+    #ifdef _XNRPE_DEBUG
+    char *p = cJSON_PrintUnformatted(root);
+    printf("response:%s\n", p);
+    if(p != NULL)
+    {
+        free(p);
+        p = NULL;
+    }
+    #endif // _XNRPE_DEBUG
+    cJSON_Delete(root);
+    return 0;
 }
 
 
