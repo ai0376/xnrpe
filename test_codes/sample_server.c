@@ -112,6 +112,12 @@ int main(int argc, char * argv[])
 					printf("\n\nxxx---%d\n",count);
 					close(events[i].data.fd);
 				}
+				else
+				{
+					
+					int ret = send(events[i].data.fd,buf,len,0);
+					printf("send: %d\n", ret);
+				}
 				printf("receive from client:%d-----%d\n\n",len,count);
 			}
 			else
