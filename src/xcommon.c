@@ -24,7 +24,8 @@ int resolve_host_name(char* hostname, struct in_addr* addr)
     struct addrinfo *res;
 
     int result = getaddrinfo (hostname, NULL, NULL, &res);
-    if (result == 0) {
+    if (result == 0)
+    {
         memcpy(addr, &((struct sockaddr_in *) res->ai_addr)->sin_addr, sizeof(struct in_addr));
         freeaddrinfo(res);
     }
@@ -105,7 +106,8 @@ int send_tcp_and_recv(int s, char *buf, int len)
     int n = 0;
 
     /* send all the data */
-    while (total < len) {
+    while (total < len)
+    {
         n = send(s, buf + total, bytesleft, 0); /* send some data */
         if (n == -1)            /* break on error */
             break;

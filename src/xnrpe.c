@@ -118,7 +118,8 @@ int process_arguments(int argc, char **argv)
 
     snprintf(optchars, MAX_INPUT_BUFFER, "c:h");
 
-    while (1) {
+    while (1)
+    {
         c = getopt(argc, argv, optchars);
         if (c == -1 || c == EOF)
             break;
@@ -190,7 +191,8 @@ void free_memory(void)
 
     /* free memory for the command list */
     this_command = command_list;
-    while (this_command != NULL) {
+    while (this_command != NULL)
+    {
         next_command = this_command->next;
         if (this_command->command_name)
             free(this_command->command_name);
