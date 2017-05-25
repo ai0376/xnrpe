@@ -1,6 +1,9 @@
 #include "xcommon.h"
 #include "cJSON.h"
 
+command_task commands_array[MAX_COMMAND_NUM]={0};
+int command_array_size= 0 ;
+
 int setnonblocking(int sock)
 {
     int opts;
@@ -124,7 +127,7 @@ int read_response(int sock, char *buf)
 {
     int common_size,total,json_size;
     total = 0;
-    common_size = 6;
+    common_size = MESSAGE_HEAD_LEN;
 
     int recvd = recv(sock, buf, MAX_INPUT_BUFFER, 0);
     if(recvd == -1 && errno == EAGAIN)
@@ -139,7 +142,7 @@ int read_response(int sock, char *buf)
     }
     total += recvd;
     json_size =((buf[2]&0xFF)<<24|(buf[3]&0xFF)<<16|(buf[4]&0xFF)<<8|(buf[5]&0xFF)<<0);
-    common_size = json_size+6;
+    common_size = json_size+MESSAGE_HEAD_LEN;
     while(total < common_size)
     {
         recvd = recv(sock, buf+total,MAX_INPUT_BUFFER, 0);
@@ -158,28 +161,20 @@ int read_response(int sock, char *buf)
     return total;
 }
 
-int pack_msg(char *inbuf, unsigned int len, char *outbuf)
+/*
+type: 0,heartbeat; 1 report message
+*/
+int pack_msg(char *inbuf, unsigned int len, char *outbuf,char type)
 {
-    char head[6]={0x00,0x00,0x00,0x00,0x00,0x00};
+    char head[MESSAGE_HEAD_LEN]={0x00,0x00,0x00,0x00,0x00,0x00,0x00};
     head[2]=0x000000ff&(len >> 24);
     head[3]=0x000000ff&(len >> 16);
     head[4]=0x000000ff&(len >> 8);
     head[5]=0x000000ff&(len >> 0);
-    memcpy((void *)outbuf,(void *)&head, 6);
-    memcpy((void *)(outbuf+6), (void *)inbuf, len);
-    return (6+len);
-}
-
-int handle_response_message(char *buf, int len)
-{
-    char *msg = buf;
-    char temp[MAX_INPUT_BUFFER]="";
-    int json_size = ((buf[2]&0xFF)<<24|(buf[3]&0xFF)<<16|(buf[4]&0xFF)<<8|(buf[5]&0xFF)<<0);
-    printf("\nlen = %d, json_size=%d\n", len,json_size);
-    memcpy(temp, msg+6, json_size);
-    printf("json: %s\n",temp);
-    return 0;
-
+    head[6]=0xff&type;
+    memcpy((void *)outbuf,(void *)&head, MESSAGE_HEAD_LEN);
+    memcpy((void *)(outbuf+MESSAGE_HEAD_LEN), (void *)inbuf, len);
+    return (MESSAGE_HEAD_LEN+len);
 }
 
 /*
@@ -201,22 +196,39 @@ int handle_heartbeat_respon_msg(char *str)
         cJSON_Delete(root);
         return -1;
     }
+    memset((char *)commands_array, 0, sizeof(command_task) * MAX_COMMAND_NUM);
+    command_array_size = 0;
+
     for(i = 0 ; i < cJSON_GetArraySize(root); i++)
     {
         cJSON *obj = cJSON_GetArrayItem(root, i);
-        if(cJSON_HasObjectItem(obj,"command"))
+        if(!(cJSON_HasObjectItem(obj,"command"))||!(cJSON_HasObjectItem(obj,"id")))
         {
-            cJSON* cmd_obj = cJSON_GetObjectItem(obj,"command");
+            continue;
         }
-        if(cJSON_HasObjectItem(obj,"id"))
+        cJSON* cmd_obj = cJSON_GetObjectItem(obj,"command");
+        cJSON* id_obj = cJSON_GetObjectItem(obj,"id");
+        if(cmd_obj->valuestring != "" && id_obj->valuestring != "")
         {
-            cJSON* id_obj = cJSON_GetObjectItem(obj,"id");
+            // add cmd_name & id  in list
+            command_task cmd;
+            strcpy(cmd.comamnd_name,cmd_obj->valuestring);
+            strcpy(cmd.id,id_obj->valuestring);
+            commands_array[i] = cmd;
+            command_array_size ++;
         }
-
-        // add cmd_name & id  in list
-
     }
     #ifdef _XNRPE_DEBUG
+    int k;
+    printf("cmd-array-size: %d\n",command_array_size);
+    for (k = 0; k < command_array_size; k++)
+    {
+        printf("******\n");
+        printf("id: %s\n",commands_array[k].id);
+        printf("name: %s\n",commands_array[k].comamnd_name);
+        printf("******\n");
+    }
+
     char *p = cJSON_PrintUnformatted(root);
     printf("response:%s\n", p);
     if(p != NULL)
@@ -227,6 +239,19 @@ int handle_heartbeat_respon_msg(char *str)
     #endif // _XNRPE_DEBUG
     cJSON_Delete(root);
     return 0;
+}
+
+int handle_response_message(char *buf, int len)
+{
+    char *msg = buf;
+    char temp[MAX_INPUT_BUFFER]="";
+    int json_size = ((buf[2]&0xFF)<<24|(buf[3]&0xFF)<<16|(buf[4]&0xFF)<<8|(buf[5]&0xFF)<<0);
+    printf("\nlen = %d, json_size=%d\n", len,json_size);
+    memcpy(temp, msg+MESSAGE_HEAD_LEN, json_size);
+    //printf("json: %s\n",temp);
+    handle_heartbeat_respon_msg(temp);
+    return 0;
+
 }
 
 

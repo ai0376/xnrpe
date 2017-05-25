@@ -1,9 +1,12 @@
 #include "xcommon.h"
 
+
+
 command  *command_list = NULL;
 char server_address[NI_MAXHOST]="";
 int server_port=DEFAULT_SERVER_PORT;
 int sock_send_recv_timeout = DEFAULT_SOCK_SEND_RECV_TIMEOUT;
+int heartbeat_time=DEFAULT_HEARTBEAT_TIME;
 
 extern int errno;
 struct epoll_event event;
@@ -60,7 +63,7 @@ void *task(void *args)
             fprintf(stdout,"time: %d cmd: %s\n",time,cmd);
             strcpy(buf, "[{\"values\":{\"PF_SERVER_DISK_IOTIMES\":\"NA\",\"PF_SERVER_DISK_WAITTIME\":\"0.38\",\"PF_SERVER_DISK_BUSYRATE\":\"0.04\",\"PF_SERVER_DISK_IOBYTES\":\"57.73\",\"PF_SERVER_DISK_NAME\":\"cciss/c0d0p1\"},\"neId\":\"402885ef5c103953015c104e0c920001\",\"neTopType\":\"PF-SERVER-UNIX\",\"neType\":\"PF-SERVER-UNIX-DISKIO\",\"neName\":\"cciss/c0d0p1\"}]");
             len = strlen(buf);
-            len = pack_msg(buf, len,outbuf);
+            len = pack_msg(buf, len,outbuf,1);
             report_tcp_information(outbuf, len, 0);
            // command *tempcommand = find_command(cmd);
            // printf("\n\n%s:%s\n\n",tempcommand->command_name,tempcommand->command_line);
@@ -72,16 +75,16 @@ void *task(void *args)
             fprintf(stdout,"time: %d cmd: %s\n",time,cmd);
             strcpy(buf, "[{\"values\":{\"PF_SERVER_DISK_IOTIMES\":\"NA\",\"PF_SERVER_DISK_WAITTIME\":\"0.38\",\"PF_SERVER_DISK_BUSYRATE\":\"0.04\",\"PF_SERVER_DISK_IOBYTES\":\"57.73\",\"PF_SERVER_DISK_NAME\":\"cciss/c0d0p1\"},\"neId\":\"402885ef5c103953015c104e0c920001\",\"neTopType\":\"PF-SERVER-UNIX\",\"neType\":\"PF-SERVER-UNIX-DISKIO\",\"neName\":\"cciss/c0d0p1\"}]");
             len = strlen(buf);
-            len = pack_msg(buf, len,outbuf);
+            len = pack_msg(buf, len,outbuf,1);
             report_tcp_information(outbuf, len,0);
         }
         else if(strcmp(cmd, "ACK") == 0)
         {
             fprintf(stdout,"time: %d cmd: %s\n",time,cmd);
-            strcpy(buf, "[{\"values\":{},\"neId\":\"402885ef5c103953015c104e0c920001\",\"neTopType\":\"\",\"neType\":\"\",\"neName\":\"\",\"dataType\":0}]");
+            strcpy(buf, "[{\"command\":\"check_disk\",\"id\":\"001\"}]");
             len = strlen(buf);
-            len = pack_msg(buf, len,outbuf);
-            report_tcp_information(outbuf, len, 0);
+            len = pack_msg(buf, len,outbuf,0);
+            report_tcp_information(outbuf, len, 1);
         }
        /* len = pack_msg(cmd, len,outbuf);
         report_tcp_information(outbuf, len);*/
@@ -289,6 +292,17 @@ int read_config_file(char *filename)
             fprintf(stdout, "GET %s=%s\n",varname,varvalue);
             #endif // _XNRPE_DEBUG
         }
+        else if(!strcmp(varname, "heartbeat_time"))
+        {
+            heartbeat_time = atoi(varvalue);
+            if(heartbeat_time < 0)
+            {
+                heartbeat_time = DEFAULT_HEARTBEAT_TIME;
+            }
+            #ifdef _XNRPE_DEBUG
+            fprintf(stdout, "GET %s=%s\n",varname,varvalue);
+            #endif // _XNRPE_DEBUG
+        }
         else if(strstr(input_line, "command["))
         {
             temp_buffer = strtok(varname,"[");
@@ -327,7 +341,9 @@ int main(int argc,char **argv)
         usage(result);
         exit(ERROR);
     }
-    printf("%s\n", config_file);
+    #ifdef _XNRPE_DEBUG
+    printf("GET:config_file=%s\n", config_file);
+    #endif // _XNRPE_DEBUG
 
     if (config_file[0] != '/')
     {
@@ -374,9 +390,10 @@ int main(int argc,char **argv)
     */
     ARGS args;
     ARGS args1;
-    args.time=1;
+    args.time=10;
     //strcpy(args.cmd,"check_disk");
-    strcpy(args.cmd,"check_cpu");
+    //strcpy(args.cmd,"check_cpu");
+    strcpy(args.cmd,"ACK");
     args1.time=10;
     strcpy(args1.cmd,"ACK");
 

@@ -31,10 +31,18 @@
 #define MAX_INPUT_BUFFER 2048
 #define MAX_FILENAME_LENGTH 256
 #define DEFAULT_SOCK_SEND_RECV_TIMEOUT 10 //seconds
+#define DEFAULT_HEARTBEAT_TIME 5
+#define MAX_COMMAND_NUM 1024
+#define MESSAGE_HEAD_LEN 7
+
+#define _XNRPE_DEBUG 1
 
 extern char server_address[NI_MAXHOST];
 extern int server_port;
 extern int sock_send_recv_timeout;
+extern int heartbeat_time;
+
+extern int command_array_size;
 
 typedef struct args{
     int time; //seconds
@@ -49,10 +57,12 @@ typedef struct command_struct{
 
 //task command
 typedef  struct command_task_struct{
-    char *comamnd_name;
-    char *id;
-    struct command_task_struct *next;
+    char comamnd_name[512];
+    char id[512];
 }command_task;
+
+
+extern command_task commands_array[MAX_COMMAND_NUM];
 
 int process_arguments(int argc, char **argv);
 
@@ -65,16 +75,17 @@ int start_connect(char *host, int port);
 /*
 * 2 byte  begin header
 * 4 byte  json data length
-*|---|-------|----------|
-*|0|0|0|0|0|0|json data |
-*|---|-------|----------|
+* 1 byte  op type£¬0 heart beat£¬1 report message
+*|---|-------|-|----------|
+*|0|0|0|0|0|0|0|json data |
+*|---|-------|-|----------|
 */
 
 int report_tcp_information(char *info , int len, int recv_flag);
 int send_tcp_all(int s,char *buf, int len);
 int read_response(int sock, char *buf);
 int handle_response_message(char *buf, int len);
-int pack_msg(char *inbuf, unsigned int len, char *outbuf);
+int pack_msg(char *inbuf, unsigned int len, char *outbuf,char type);
 
 
 //define in xnrpe.c
