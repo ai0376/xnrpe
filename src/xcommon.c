@@ -249,7 +249,15 @@ int handle_response_message(char *buf, int len)
     printf("\nlen = %d, json_size=%d\n", len,json_size);
     memcpy(temp, msg+MESSAGE_HEAD_LEN, json_size);
     //printf("json: %s\n",temp);
-    handle_heartbeat_respon_msg(temp);
+    char type = buf[6];
+    if(type == 0)
+    {
+        handle_heartbeat_respon_msg(temp);
+    }
+    else
+    {
+
+    }
     return 0;
 
 }

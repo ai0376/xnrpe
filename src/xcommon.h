@@ -43,6 +43,7 @@ extern int sock_send_recv_timeout;
 extern int heartbeat_time;
 
 extern int command_array_size;
+extern int report_flag;
 
 typedef struct args{
     int time; //seconds

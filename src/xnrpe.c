@@ -18,7 +18,8 @@ int num_listen_socks = 0;
 int socket_timeout = DEFAULT_SOCKET_TIMEOUT;
 int connection_timeout = DEFAULT_CONNECTION_TIMEOUT;
 int task_num = 2;
-int task_flag = 1;
+int task_flag = true;
+int report_flag = false;
 int show_help = false;
 
 //signal function to exit process
@@ -39,6 +40,54 @@ void handle_pipe(int sig)
     return;
 }
 
+void *report_task(void *args)
+{
+    int index=0;
+    while(true)
+    {
+        //if(report_flag)
+        {
+            if(command_array_size > 0)
+            {
+                char cmd[512]={0};
+                char id[512]={0};
+                char buf[MAX_INPUT_BUFFER]={0};
+                char outbuf[MAX_INPUT_BUFFER]={0};
+                int len = 0;
+                for(index = 0; index < command_array_size ; index++)
+                {
+                    memset(cmd,0, 512);
+                    memset(id,0, 512);
+                    strcpy(cmd,commands_array[index].comamnd_name);
+                    strcpy(id,commands_array[index].id);
+                    command *tempcommand = find_command(cmd);
+                    if(tempcommand == NULL)
+                    {
+                        fprintf(stdout, "not support cmd:%s\n",cmd);
+                        continue;
+                    }
+                    if(strcmp(cmd, "check_disk")==0)
+                    {
+                        bzero(buf,MAX_INPUT_BUFFER);
+                        bzero(outbuf,MAX_INPUT_BUFFER);
+                        sprintf(buf, "[{\"values\":{\"PF_SERVER_DISK_IOTIMES\":\"NA\",\"PF_SERVER_DISK_WAITTIME\":\"0.38\",\"PF_SERVER_DISK_BUSYRATE\":\"0.04\",\"PF_SERVER_DISK_IOBYTES\":\"57.73\",\"PF_SERVER_DISK_NAME\":\"cciss/c0d0p1\"},\"neId\":\"%s\",\"neTopType\":\"PF-SERVER-UNIX\",\"neType\":\"PF-SERVER-UNIX-DISKIO\",\"neName\":\"cciss/c0d0p1\"}]",id);
+                        len = strlen(buf);
+                        len = pack_msg(buf, len,outbuf,1);
+                        report_tcp_information(outbuf, len,0);
+                        #ifdef _XNRPE_DEBUG
+                        fprintf(stdout,"had report [%s] info\n",cmd);
+                        #endif // _XNRPE_DEBUG
+                    }
+                }
+            }
+        }
+       // else
+        {
+
+        }
+        sleep(5);
+    }
+}
 //timer task and send message
 void *task(void *args)
 {
@@ -404,12 +453,12 @@ int main(int argc,char **argv)
         return -1;
     }
 
-   /* int ret1 = pthread_create(&tid1, NULL, task, (void *)&args1);
+    int ret1 = pthread_create(&tid1, NULL, report_task, (void *)&args1);
     if(ret1)
     {
         perror("pthread_create  threard_heart_beat Fail!");
         return -1;
-    }*/
+    }
     //register signal
     signal(SIGINT,fun_int);
     signal(SIGTERM,fun_term);
@@ -420,8 +469,8 @@ int main(int argc,char **argv)
     }
     pthread_cancel(tid);
     pthread_join(tid, NULL);
-   /* pthread_cancel(tid1);
-    pthread_join(tid1, NULL);*/
+    pthread_cancel(tid1);
+    pthread_join(tid1, NULL);
     free_memory();
     fprintf(stdout, "\nexit success!\n");
     return 0;

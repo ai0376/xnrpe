@@ -114,9 +114,29 @@ int main(int argc, char * argv[])
 				}
 				else
 				{
-					
-					int ret = send(events[i].data.fd,buf,len,0);
-					printf("send: %d\n", ret);
+					char type = buf[6];
+                    if(type == 0)
+                    {
+                        int ret = send(events[i].data.fd,buf,len,0);
+                        printf("send: %d\n", ret);
+                    }
+                   /* else if(type == 1)
+                    {
+                        char tmp[100]={0};
+                        char success[20]={"{\"result\":0}"};
+                        int suc_len = strlen(success);
+                        char header[7]={0x0,0x0,0x0,0x0,0x0,0x0,0x0};
+                        header[2]=0x000000ff&(suc_len >> 24);
+                        header[3]=0x000000ff&(suc_len >> 16);
+                        header[4]=0x000000ff&(suc_len >> 8);
+                        header[5]=0x000000ff&(suc_len >> 0);
+                        header[6]=0xff&type;
+                        memcpy(tmp,header,7);
+                        memcpy(tmp+7,success,suc_len);
+                        suc_len = suc_len+7;
+                        int ret = send(events[i].data.fd,tmp,suc_len,0);
+                        printf("send: %d\n", ret);
+                    }*/
 				}
 				printf("receive from client:%d-----%d\n\n",len,count);
 			}
