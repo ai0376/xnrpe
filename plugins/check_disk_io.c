@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 extern int errno;
@@ -69,9 +70,9 @@ int main(int argc,char **argv)
             {
                 memset(array_data, 0, 100 * 100);
                 ret = split(buf, seg, array_data);
-                sprintf(disk_iobytes, "%.2f",(float)(atof(array_data[5])+atof(array_data[6])));
-                sprintf(disk_avgnum, "%.2f",(float)(atof(array_data[3])+atof(array_data[4])));
-                
+               
+                sprintf(disk_iobytes, "%.2f",(atof(array_data[5])+atof(array_data[6])));
+                sprintf(disk_avgnum, "%.2f",(atof(array_data[3])+atof(array_data[4])));
                 if(line == 0)
                 {
                     sprintf(json_obj,"{\"PF_SERVER_DISK_AVGNUM\":\"%s\",\"PF_SERVER_DISK_BUSYRATE\":\"%s\",\"PF_SERVER_DISK_IOBYTES\":\"%s\",\"PF_SERVER_DISK_WAITTIME\":\"%s\",\"PF_SERVER_DISK_NAME\":\"%s\",\"PF_SERVER_DISK_NAME\":\"%s\",\"id\":\"%s\"}", disk_avgnum,array_data[11],disk_iobytes,array_data[9],array_data[0],progname,id);
