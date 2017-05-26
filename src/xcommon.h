@@ -36,6 +36,7 @@
 #define MESSAGE_HEAD_LEN 7
 
 #define _XNRPE_DEBUG 1
+#define _TEST   1
 
 extern char server_address[NI_MAXHOST];
 extern int server_port;
@@ -76,7 +77,7 @@ int start_connect(char *host, int port);
 /*
 * 2 byte  begin header
 * 4 byte  json data length
-* 1 byte  op type£¬0 heart beat£¬1 report message
+* 1 byte  op typeï¿½ï¿½0 heart beatï¿½ï¿½1 report message
 *|---|-------|-|----------|
 *|0|0|0|0|0|0|0|json data |
 *|---|-------|-|----------|
@@ -100,6 +101,8 @@ int add_command(char *command_name, char *command_line);
 command *find_command(char *command_name);
 int read_config_file(char *filename);
 void free_memory(void);
+
+int my_system(char *command, char *outbuf);
 
 
 /********hand heartbeat respon json msg********/

@@ -263,7 +263,30 @@ int handle_response_message(char *buf, int len)
 
     }
     return 0;
+}
 
+int my_system(char *command, char *outbuf)
+{
+    FILE *fp = NULL;
+    int size = 0;
+    int byte_read = 0;
+    char *buffer=outbuf;
+#ifdef _XNRPE_DEBUG
+    printf("%s\n",command);
+#endif
+    if((fp=popen(command, "r")) == NULL)
+    {
+        fprintf(stdout,"popen error: %s",strerror(errno));
+        return -1;
+    }
+    
+    while((byte_read = fread(buffer+size , 1, sizeof(buffer),fp)) > 0)
+    {
+        size += byte_read;
+    }
+    pclose(fp);
+    fp = NULL;
+    return size;
 }
 
 

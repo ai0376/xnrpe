@@ -376,6 +376,18 @@ int read_config_file(char *filename)
     return OK;
 }
 
+#ifdef _TEST
+int main(int argc,char **argv)
+{
+    char *command="../plugins/check_disk_io 0001";
+    char buf[MAX_INPUT_BUFFER]={0};
+    int len = my_system(command, buf);
+
+    printf("%s\n", buf);
+    printf("%d\n", len);
+    return 0;
+}
+#else
 int main(int argc,char **argv)
 {
     struct sigaction action;
@@ -475,3 +487,4 @@ int main(int argc,char **argv)
     fprintf(stdout, "\nexit success!\n");
     return 0;
 }
+#endif
