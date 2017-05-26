@@ -1,3 +1,4 @@
 ./src/xnrpe
 ./src/*.o
 ./test_codes/*.o
+./plugins/check_disk_io
