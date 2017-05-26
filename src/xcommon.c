@@ -68,7 +68,9 @@ int report_tcp_information(char *info, int len, int recv_flag)
     struct timeval timeout={sock_send_recv_timeout,0};;
     memset(&address, 0, sizeof(address));
     address.sin_family = AF_INET;
+#ifdef _XNRPE_DEBUG
     fprintf(stdout,"\nremote:%s:%d\n",server_address,server_port);
+#endif
     address.sin_port = htons(server_port);
 
     if (resolve_host_name(server_address, &(address.sin_addr)) != 0)
@@ -118,7 +120,9 @@ int send_tcp_all(int s,char *buf, int len)
         total += n;
         bytesleft -= n;
     }
-    printf("\n\nsend_tcp_all:%d----send total=%d\n\n",len,total);
+#ifdef _XNRPE_DEBUG
+    fprintf(stdout,"\n\nsend_tcp_all:%d----send total=%d\n\n",len,total);
+#endif
     len = total;                /* return number of bytes actually sent here */
     return n == -1 ? -1 : 0;    /* return -1 on failure, 0 on success */
 }
@@ -218,7 +222,7 @@ int handle_heartbeat_respon_msg(char *str)
             command_array_size ++;
         }
     }
-    #ifdef _XNRPE_DEBUG
+#ifdef _XNRPE_DEBUG
     int k;
     printf("cmd-array-size: %d\n",command_array_size);
     for (k = 0; k < command_array_size; k++)
@@ -236,7 +240,7 @@ int handle_heartbeat_respon_msg(char *str)
         free(p);
         p = NULL;
     }
-    #endif // _XNRPE_DEBUG
+#endif // _XNRPE_DEBUG
     cJSON_Delete(root);
     return 0;
 }

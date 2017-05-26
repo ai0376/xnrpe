@@ -71,13 +71,7 @@ int main(int argc,char **argv)
                 ret = split(buf, seg, array_data);
                 sprintf(disk_iobytes, "%.2f",(float)(atof(array_data[5])+atof(array_data[6])));
                 sprintf(disk_avgnum, "%.2f",(float)(atof(array_data[3])+atof(array_data[4])));
-               /* printf("k:%d\n",k);
-                int j;
-                for(j= 0; j < k; j++)
-                {
-                    printf("%s\t",array[j]);
-                }
-                printf("\n");*/
+                
                 if(line == 0)
                 {
                     sprintf(json_obj,"{\"PF_SERVER_DISK_AVGNUM\":\"%s\",\"PF_SERVER_DISK_BUSYRATE\":\"%s\",\"PF_SERVER_DISK_IOBYTES\":\"%s\",\"PF_SERVER_DISK_WAITTIME\":\"%s\",\"PF_SERVER_DISK_NAME\":\"%s\",\"PF_SERVER_DISK_NAME\":\"%s\",\"id\":\"%s\"}", disk_avgnum,array_data[11],disk_iobytes,array_data[9],array_data[0],progname,id);
@@ -109,37 +103,37 @@ sde               0.00     0.10 0.30 0.20     2.40     2.40     9.60     0.00   
 sdf              17.40     0.50 102.00 0.20 12095.20     5.60   118.40     0.70    6.81   2.09 21.36
 sdg             232.40     1.90 379.70 0.50 76451.20    19.20   201.13     4.94   13.78   2.45 93.16
 
-rrqm/s:   Ã¿Ãë½øĞĞ merge µÄ¶Á²Ù×÷ÊıÄ¿¡£¼´ delta(rmerge)/s
-wrqm/s: Ã¿Ãë½øĞĞ merge µÄĞ´²Ù×÷ÊıÄ¿¡£¼´ delta(wmerge)/s
-r/s:           Ã¿ÃëÍê³ÉµÄ¶Á I/O Éè±¸´ÎÊı¡£¼´ delta(rio)/s
-w/s:         Ã¿ÃëÍê³ÉµÄĞ´ I/O Éè±¸´ÎÊı¡£¼´ delta(wio)/s
-rsec/s:    Ã¿Ãë¶ÁÉÈÇøÊı¡£¼´ delta(rsect)/s
-wsec/s: Ã¿ÃëĞ´ÉÈÇøÊı¡£¼´ delta(wsect)/s
-rkB/s:     Ã¿Ãë¶ÁK×Ö½ÚÊı¡£ÊÇ rsect/s µÄÒ»°ë£¬ÒòÎªÃ¿ÉÈÇø´óĞ¡Îª512×Ö½Ú¡£(ĞèÒª¼ÆËã)
-wkB/s:    Ã¿ÃëĞ´K×Ö½ÚÊı¡£ÊÇ wsect/s µÄÒ»°ë¡£(ĞèÒª¼ÆËã)
-avgrq-sz:Æ½¾ùÃ¿´ÎÉè±¸I/O²Ù×÷µÄÊı¾İ´óĞ¡ (ÉÈÇø)¡£delta(rsect+wsect)/delta(rio+wio)
-avgqu-sz:Æ½¾ùI/O¶ÓÁĞ³¤¶È¡£¼´ delta(aveq)/s/1000 (ÒòÎªaveqµÄµ¥Î»ÎªºÁÃë)¡£
-await:    Æ½¾ùÃ¿´ÎÉè±¸I/O²Ù×÷µÄµÈ´ıÊ±¼ä (ºÁÃë)¡£¼´ delta(ruse+wuse)/delta(rio+wio)
-svctm: Æ½¾ùÃ¿´ÎÉè±¸I/O²Ù×÷µÄ·şÎñÊ±¼ä (ºÁÃë)¡£¼´ delta(use)/delta(rio+wio)
-%util:     Ò»ÃëÖĞÓĞ°Ù·ÖÖ®¶àÉÙµÄÊ±¼äÓÃÓÚ I/O ²Ù×÷£¬»òÕßËµÒ»ÃëÖĞÓĞ¶àÉÙÊ±¼ä I/O ¶ÓÁĞÊÇ·Ç¿ÕµÄ¡£¼´ delta(use)/s/1000 (ÒòÎªuseµÄµ¥Î»ÎªºÁÃë)
+rrqm/s:   æ¯ç§’è¿›è¡Œ merge çš„è¯»æ“ä½œæ•°ç›®ã€‚å³ delta(rmerge)/s
+wrqm/s: æ¯ç§’è¿›è¡Œ merge çš„å†™æ“ä½œæ•°ç›®ã€‚å³ delta(wmerge)/s
+r/s:           æ¯ç§’å®Œæˆçš„è¯» I/O è®¾å¤‡æ¬¡æ•°ã€‚å³ delta(rio)/s
+w/s:         æ¯ç§’å®Œæˆçš„å†™ I/O è®¾å¤‡æ¬¡æ•°ã€‚å³ delta(wio)/s
+rsec/s:    æ¯ç§’è¯»æ‰‡åŒºæ•°ã€‚å³ delta(rsect)/s
+wsec/s: æ¯ç§’å†™æ‰‡åŒºæ•°ã€‚å³ delta(wsect)/s
+rkB/s:     æ¯ç§’è¯»Kå­—èŠ‚æ•°ã€‚æ˜¯ rsect/s çš„ä¸€åŠï¼Œå› ä¸ºæ¯æ‰‡åŒºå¤§å°ä¸º512å­—èŠ‚ã€‚(éœ€è¦è®¡ç®—)
+wkB/s:    æ¯ç§’å†™Kå­—èŠ‚æ•°ã€‚æ˜¯ wsect/s çš„ä¸€åŠã€‚(éœ€è¦è®¡ç®—)
+avgrq-sz:å¹³å‡æ¯æ¬¡è®¾å¤‡I/Oæ“ä½œçš„æ•°æ®å¤§å° (æ‰‡åŒº)ã€‚delta(rsect+wsect)/delta(rio+wio)
+avgqu-sz:å¹³å‡I/Oé˜Ÿåˆ—é•¿åº¦ã€‚å³ delta(aveq)/s/1000 (å› ä¸ºaveqçš„å•ä½ä¸ºæ¯«ç§’)ã€‚
+await:    å¹³å‡æ¯æ¬¡è®¾å¤‡I/Oæ“ä½œçš„ç­‰å¾…æ—¶é—´ (æ¯«ç§’)ã€‚å³ delta(ruse+wuse)/delta(rio+wio)
+svctm: å¹³å‡æ¯æ¬¡è®¾å¤‡I/Oæ“ä½œçš„æœåŠ¡æ—¶é—´ (æ¯«ç§’)ã€‚å³ delta(use)/delta(rio+wio)
+%util:     ä¸€ç§’ä¸­æœ‰ç™¾åˆ†ä¹‹å¤šå°‘çš„æ—¶é—´ç”¨äº I/O æ“ä½œï¼Œæˆ–è€…è¯´ä¸€ç§’ä¸­æœ‰å¤šå°‘æ—¶é—´ I/O é˜Ÿåˆ—æ˜¯éç©ºçš„ã€‚å³ delta(use)/s/1000 (å› ä¸ºuseçš„å•ä½ä¸ºæ¯«ç§’)
 
-Èç¹û %util ½Ó½ü 100%£¬ËµÃ÷²úÉúµÄI/OÇëÇóÌ«¶à£¬I/OÏµÍ³ÒÑ¾­Âú¸ººÉ£¬¸Ã´ÅÅÌ
-¿ÉÄÜ´æÔÚÆ¿¾±¡£
-idleĞ¡ÓÚ70% IOÑ¹Á¦¾Í½Ï´óÁË,Ò»°ã¶ÁÈ¡ËÙ¶ÈÓĞ½Ï¶àµÄwait.
-Í¬Ê±¿ÉÒÔ½áºÏvmstat ²é¿´²é¿´b²ÎÊı(µÈ´ı×ÊÔ´µÄ½ø³ÌÊı)ºÍwa²ÎÊı(IOµÈ´ıËùÕ¼ÓÃµÄCPUÊ±¼äµÄ°Ù·Ö±È,¸ß¹ı30%Ê±IOÑ¹Á¦¸ß)
+å¦‚æœ %util æ¥è¿‘ 100%ï¼Œè¯´æ˜äº§ç”Ÿçš„I/Oè¯·æ±‚å¤ªå¤šï¼ŒI/Oç³»ç»Ÿå·²ç»æ»¡è´Ÿè·ï¼Œè¯¥ç£ç›˜
+å¯èƒ½å­˜åœ¨ç“¶é¢ˆã€‚
+idleå°äº70% IOå‹åŠ›å°±è¾ƒå¤§äº†,ä¸€èˆ¬è¯»å–é€Ÿåº¦æœ‰è¾ƒå¤šçš„wait.
+åŒæ—¶å¯ä»¥ç»“åˆvmstat æŸ¥çœ‹æŸ¥çœ‹bå‚æ•°(ç­‰å¾…èµ„æºçš„è¿›ç¨‹æ•°)å’Œwaå‚æ•°(IOç­‰å¾…æ‰€å ç”¨çš„CPUæ—¶é—´çš„ç™¾åˆ†æ¯”,é«˜è¿‡30%æ—¶IOå‹åŠ›é«˜)
 
-avg-cpu¶Î:
-%user: ÔÚÓÃ»§¼¶±ğÔËĞĞËùÊ¹ÓÃµÄCPUµÄ°Ù·Ö±È.
-%nice: nice²Ù×÷ËùÊ¹ÓÃµÄCPUµÄ°Ù·Ö±È
-.%sys: ÔÚÏµÍ³¼¶±ğ(kernel)ÔËĞĞËùÊ¹ÓÃCPUµÄ°Ù·Ö±È.
-%iowait: CPUµÈ´ıÓ²¼şI/OÊ±,ËùÕ¼ÓÃCPU°Ù·Ö±È.
-%idle: CPU¿ÕÏĞÊ±¼äµÄ°Ù·Ö±È.
-Device¶Î:
-tps: Ã¿ÃëÖÓ·¢ËÍµ½µÄI/OÇëÇóÊı.
-Blk_read /s: Ã¿Ãë¶ÁÈ¡µÄblockÊı.
-Blk_wrtn/s: Ã¿ÃëĞ´ÈëµÄblockÊı.
-Blk_read:   ¶ÁÈëµÄblock×ÜÊı.
-Blk_wrtn:  Ğ´ÈëµÄblock×ÜÊı.
+avg-cpuæ®µ:
+%user: åœ¨ç”¨æˆ·çº§åˆ«è¿è¡Œæ‰€ä½¿ç”¨çš„CPUçš„ç™¾åˆ†æ¯”.
+%nice: niceæ“ä½œæ‰€ä½¿ç”¨çš„CPUçš„ç™¾åˆ†æ¯”
+.%sys: åœ¨ç³»ç»Ÿçº§åˆ«(kernel)è¿è¡Œæ‰€ä½¿ç”¨CPUçš„ç™¾åˆ†æ¯”.
+%iowait: CPUç­‰å¾…ç¡¬ä»¶I/Oæ—¶,æ‰€å ç”¨CPUç™¾åˆ†æ¯”.
+%idle: CPUç©ºé—²æ—¶é—´çš„ç™¾åˆ†æ¯”.
+Deviceæ®µ:
+tps: æ¯ç§’é’Ÿå‘é€åˆ°çš„I/Oè¯·æ±‚æ•°.
+Blk_read /s: æ¯ç§’è¯»å–çš„blockæ•°.
+Blk_wrtn/s: æ¯ç§’å†™å…¥çš„blockæ•°.
+Blk_read:   è¯»å…¥çš„blockæ€»æ•°.
+Blk_wrtn:  å†™å…¥çš„blockæ€»æ•°.
 *
 *
 */

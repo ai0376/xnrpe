@@ -74,9 +74,9 @@ void *report_task(void *args)
                         len = strlen(buf);
                         len = pack_msg(buf, len,outbuf,1);
                         report_tcp_information(outbuf, len,0);
-                        #ifdef _XNRPE_DEBUG
+#ifdef _XNRPE_DEBUG
                         fprintf(stdout,"had report [%s] info\n",cmd);
-                        #endif // _XNRPE_DEBUG
+#endif // _XNRPE_DEBUG
                     }
                 }
             }
@@ -314,9 +314,9 @@ int read_config_file(char *filename)
         {
             strncpy(server_address, varvalue, sizeof(server_address)-1);
             server_address[sizeof(server_address)-1] = '\0';
-            #ifdef _XNRPE_DEBUG
+#ifdef _XNRPE_DEBUG
             fprintf(stdout,"GET %s=%s\n",varname,varvalue);
-            #endif
+#endif
         }
         else if(!strcmp(varname,"server_port"))
         {
@@ -326,9 +326,9 @@ int read_config_file(char *filename)
                 fprintf(stdout,"Invalid port number specified in config file '%s' - Line %d\n",filename, line);
                 return ERROR;
             }
-            #ifdef _XNRPE_DEBUG
+#ifdef _XNRPE_DEBUG
             fprintf(stdout,"GET %s=%s\n",varname,varvalue);
-            #endif // _XNRPE_DEBUG
+#endif // _XNRPE_DEBUG
         }
         else if(!strcmp(varname, "sock_send_recv_timeout"))
         {
@@ -337,9 +337,9 @@ int read_config_file(char *filename)
             {
                 sock_send_recv_timeout = DEFAULT_SOCK_SEND_RECV_TIMEOUT;
             }
-            #ifdef _XNRPE_DEBUG
+#ifdef _XNRPE_DEBUG
             fprintf(stdout, "GET %s=%s\n",varname,varvalue);
-            #endif // _XNRPE_DEBUG
+#endif // _XNRPE_DEBUG
         }
         else if(!strcmp(varname, "heartbeat_time"))
         {
@@ -348,9 +348,9 @@ int read_config_file(char *filename)
             {
                 heartbeat_time = DEFAULT_HEARTBEAT_TIME;
             }
-            #ifdef _XNRPE_DEBUG
+#ifdef _XNRPE_DEBUG
             fprintf(stdout, "GET %s=%s\n",varname,varvalue);
-            #endif // _XNRPE_DEBUG
+#endif // _XNRPE_DEBUG
         }
         else if(strstr(input_line, "command["))
         {
@@ -362,9 +362,9 @@ int read_config_file(char *filename)
                 return ERROR;
             }
             add_command(temp_buffer, varvalue);
-            #ifdef _XNRPE_DEBUG
+#ifdef _XNRPE_DEBUG
             fprintf(stdout, "GET %s=%s\n",temp_buffer, varvalue);
-            #endif // _XNRPE_DEBUG
+#endif // _XNRPE_DEBUG
         }
         else
         {
@@ -390,9 +390,9 @@ int main(int argc,char **argv)
         usage(result);
         exit(ERROR);
     }
-    #ifdef _XNRPE_DEBUG
+#ifdef _XNRPE_DEBUG
     printf("GET:config_file=%s\n", config_file);
-    #endif // _XNRPE_DEBUG
+#endif // _XNRPE_DEBUG
 
     if (config_file[0] != '/')
     {
