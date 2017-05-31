@@ -70,11 +70,11 @@ int main(int argc,char **argv)
                 memcpy(mem_usedrate, array_data[0], strlen(array_data[0])-1);
                 if(line == 0)
                 {
-                    sprintf(json_obj,"{\"PF_SERVER_MEM_MEMUSEDRATE\":\"%s\",\"neType\":\"%s\",\"neTopType\":\"%s\",\"neId\":\"%s\",\"neName\":\"%s\"}",mem_usedrate,netType,neTopType,id,neName);
+                    sprintf(json_obj,"{\"values\":{\"PF_SERVER_MEM_MEMUSEDRATE\":\"%s\"},\"neType\":\"%s\",\"neTopType\":\"%s\",\"neId\":\"%s\",\"neName\":\"%s\"}",mem_usedrate,netType,neTopType,id,neName);
                 }
                 else
                 {
-                    sprintf(json_obj,"%s,{\"PF_SERVER_MEM_MEMUSEDRATE\":\"%s\",\"neType\":\"%s\",\"neTopType\":\"%s\",\"neId\":\"%s\",\"neName\":\"%s\"}",json_obj,mem_usedrate,netType,neTopType,id,neName);
+                    sprintf(json_obj,"%s,{\"values\":{\"PF_SERVER_MEM_MEMUSEDRATE\":\"%s\"},\"neType\":\"%s\",\"neTopType\":\"%s\",\"neId\":\"%s\",\"neName\":\"%s\"}",json_obj,mem_usedrate,netType,neTopType,id,neName);
                 }
                 line++;
             }
@@ -82,9 +82,9 @@ int main(int argc,char **argv)
     }
     if(line != 0)
     {
-        sprintf(json_array, "[%s]",json_obj);
+        //sprintf(json_array, "[%s]",json_obj);
     }
-    printf("%s\n",json_array);
+    printf("%s\n",json_obj);
     pclose(fp);
     fp=NULL;
     return 0;
