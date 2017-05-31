@@ -3,7 +3,8 @@
 #include <string.h>
 #include <errno.h>
 extern int errno;
-#define CPU_SHELL "vmstat 1 2| tail -n 1" // linux cpus
+//#define CPU_SHELL "vmstat 1 2| tail -n 1" // linux cpus
+#define CPU_SHELL "vmstat | tail -n 1" // linux cpus
 #define  BUF_SIZE  20480
 #define ID_SIZE 50
 
