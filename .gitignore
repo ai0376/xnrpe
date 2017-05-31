@@ -1,6 +1,6 @@
-./src/xnrpe
-./src/*.o
-./test_codes/*.o
-./plugins/check_disk_io
-./plugins/check_mem
-./plugins/check_cpu
+src/xnrpe
+src/*.o
+test_codes/*.o
+plugins/check_disk_io
+plugins/check_mem
+plugins/check_cpu
