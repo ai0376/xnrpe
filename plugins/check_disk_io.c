@@ -77,11 +77,11 @@ int main(int argc,char **argv)
                 sprintf(disk_avgnum, "%.2f",(atof(array_data[3])+atof(array_data[4])));
                 if(line == 0)
                 {
-                    sprintf(json_obj,"{\"PF_SERVER_DISK_AVGNUM\":\"%s\",\"PF_SERVER_DISK_BUSYRATE\":\"%s\",\"PF_SERVER_DISK_IOBYTES\":\"%s\",\"PF_SERVER_DISK_WAITTIME\":\"%s\",\"PF_SERVER_DISK_NAME\":\"%s\",\"neType\":\"%s\",\"neTopType\":\"%s\",\"neId\":\"%s\",\"neName\":\"%s\"}", disk_avgnum,array_data[11],disk_iobytes,array_data[9],array_data[0],netType,neTopType,id,array_data[0]);
+                    sprintf(json_obj,"{\"values\":{\"PF_SERVER_DISK_AVGNUM\":\"%s\",\"PF_SERVER_DISK_BUSYRATE\":\"%s\",\"PF_SERVER_DISK_IOBYTES\":\"%s\",\"PF_SERVER_DISK_WAITTIME\":\"%s\",\"PF_SERVER_DISK_NAME\":\"%s\"},\"neType\":\"%s\",\"neTopType\":\"%s\",\"neId\":\"%s\",\"neName\":\"%s\"}", disk_avgnum,array_data[11],disk_iobytes,array_data[9],array_data[0],netType,neTopType,id,array_data[0]);
                 }
                 else
                 {
-                    sprintf(json_obj,"%s,{\"PF_SERVER_DISK_AVGNUM\":\"%s\",\"PF_SERVER_DISK_BUSYRATE\":\"%s\",\"PF_SERVER_DISK_IOBYTES\":\"%s\",\"PF_SERVER_DISK_WAITTIME\":\"%s\",\"PF_SERVER_DISK_NAME\":\"%s\",\"neType\":\"%s\",\"neTopType\":\"%s\",\"neId\":\"%s\",\"neName\":\"%s\"}",json_obj,disk_avgnum,array_data[11],disk_iobytes,array_data[9],array_data[0],netType,neTopType,id,array_data[0]);
+                    sprintf(json_obj,"%s,{\"values\":{\"PF_SERVER_DISK_AVGNUM\":\"%s\",\"PF_SERVER_DISK_BUSYRATE\":\"%s\",\"PF_SERVER_DISK_IOBYTES\":\"%s\",\"PF_SERVER_DISK_WAITTIME\":\"%s\",\"PF_SERVER_DISK_NAME\":\"%s\"},\"neType\":\"%s\",\"neTopType\":\"%s\",\"neId\":\"%s\",\"neName\":\"%s\"}",json_obj,disk_avgnum,array_data[11],disk_iobytes,array_data[9],array_data[0],netType,neTopType,id,array_data[0]);
                 }
                 line++;
             }
@@ -89,9 +89,9 @@ int main(int argc,char **argv)
     }
     if(line != 0)
     {
-        sprintf(json_array, "[%s]",json_obj);
+       // sprintf(json_array, "[%s]",json_obj);
     }
-    printf("%s\n",json_array);
+    printf("%s\n",json_obj);
     pclose(fp);
     fp=NULL;
     return 0;
