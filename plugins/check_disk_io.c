@@ -8,7 +8,8 @@ extern int errno;
 #define ID_SIZE 50
 
 char id[ID_SIZE]={0};
-char *progname = "check_disk_io";
+char *netType = "PF-SERVER-UNIX-DISKIO";
+char *neTopType ="PF-SERVER-UNIX";
 
 int split(char *str, char *seg, char array[][100])
 {
@@ -75,11 +76,11 @@ int main(int argc,char **argv)
                 sprintf(disk_avgnum, "%.2f",(atof(array_data[3])+atof(array_data[4])));
                 if(line == 0)
                 {
-                    sprintf(json_obj,"{\"PF_SERVER_DISK_AVGNUM\":\"%s\",\"PF_SERVER_DISK_BUSYRATE\":\"%s\",\"PF_SERVER_DISK_IOBYTES\":\"%s\",\"PF_SERVER_DISK_WAITTIME\":\"%s\",\"PF_SERVER_DISK_NAME\":\"%s\",\"PF_SERVER_DISK_NAME\":\"%s\",\"id\":\"%s\"}", disk_avgnum,array_data[11],disk_iobytes,array_data[9],array_data[0],progname,id);
+                    sprintf(json_obj,"{\"PF_SERVER_DISK_AVGNUM\":\"%s\",\"PF_SERVER_DISK_BUSYRATE\":\"%s\",\"PF_SERVER_DISK_IOBYTES\":\"%s\",\"PF_SERVER_DISK_WAITTIME\":\"%s\",\"PF_SERVER_DISK_NAME\":\"%s\",\"neType\":\"%s\",\"neTopType\":\"%s\",\"id\":\"%s\"}", disk_avgnum,array_data[11],disk_iobytes,array_data[9],array_data[0],netType,neTopType,id);
                 }
                 else
                 {
-                    sprintf(json_obj,"%s,{\"PF_SERVER_DISK_AVGNUM\":\"%s\",\"PF_SERVER_DISK_BUSYRATE\":\"%s\",\"PF_SERVER_DISK_IOBYTES\":\"%s\",\"PF_SERVER_DISK_WAITTIME\":\"%s\",\"PF_SERVER_DISK_NAME\":\"%s\",\"PF_SERVER_DISK_NAME\":\"%s\",\"id\":\"%s\"}",json_obj,disk_avgnum,array_data[11],disk_iobytes,array_data[9],array_data[0],progname,id);
+                    sprintf(json_obj,"%s,{\"PF_SERVER_DISK_AVGNUM\":\"%s\",\"PF_SERVER_DISK_BUSYRATE\":\"%s\",\"PF_SERVER_DISK_IOBYTES\":\"%s\",\"PF_SERVER_DISK_WAITTIME\":\"%s\",\"PF_SERVER_DISK_NAME\":\"%s\",\"neType\":\"%s\",\"neTopType\":\"%s\",\"id\":\"%s\"}",json_obj,disk_avgnum,array_data[11],disk_iobytes,array_data[9],array_data[0],netType,neTopType,id);
                 }
                 line++;
             }

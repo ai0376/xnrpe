@@ -77,7 +77,7 @@ int start_connect(char *host, int port);
 /*
 * 2 byte  begin header
 * 4 byte  json data length
-* 1 byte  op type��0 heart beat��1 report message
+* 1 byte  op type:  0 heart beat, 1 report message
 *|---|-------|-|----------|
 *|0|0|0|0|0|0|0|json data |
 *|---|-------|-|----------|
