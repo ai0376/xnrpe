@@ -71,16 +71,17 @@ int main(int argc,char **argv)
             {
                 memset(array_data, 0, 100 * 100);
                 ret = split(buf, seg, array_data);
-               
+                memset(disk_avgnum, 0, 10);
+                memset(disk_iobytes, 0, 10);
                 sprintf(disk_iobytes, "%.2f",(atof(array_data[5])+atof(array_data[6])));
                 sprintf(disk_avgnum, "%.2f",(atof(array_data[3])+atof(array_data[4])));
                 if(line == 0)
                 {
-                    sprintf(json_obj,"{\"PF_SERVER_DISK_AVGNUM\":\"%s\",\"PF_SERVER_DISK_BUSYRATE\":\"%s\",\"PF_SERVER_DISK_IOBYTES\":\"%s\",\"PF_SERVER_DISK_WAITTIME\":\"%s\",\"PF_SERVER_DISK_NAME\":\"%s\",\"neType\":\"%s\",\"neTopType\":\"%s\",\"id\":\"%s\"}", disk_avgnum,array_data[11],disk_iobytes,array_data[9],array_data[0],netType,neTopType,id);
+                    sprintf(json_obj,"{\"PF_SERVER_DISK_AVGNUM\":\"%s\",\"PF_SERVER_DISK_BUSYRATE\":\"%s\",\"PF_SERVER_DISK_IOBYTES\":\"%s\",\"PF_SERVER_DISK_WAITTIME\":\"%s\",\"PF_SERVER_DISK_NAME\":\"%s\",\"neType\":\"%s\",\"neTopType\":\"%s\",\"neId\":\"%s\",\"neName\":\"%s\"}", disk_avgnum,array_data[11],disk_iobytes,array_data[9],array_data[0],netType,neTopType,id,array_data[0]);
                 }
                 else
                 {
-                    sprintf(json_obj,"%s,{\"PF_SERVER_DISK_AVGNUM\":\"%s\",\"PF_SERVER_DISK_BUSYRATE\":\"%s\",\"PF_SERVER_DISK_IOBYTES\":\"%s\",\"PF_SERVER_DISK_WAITTIME\":\"%s\",\"PF_SERVER_DISK_NAME\":\"%s\",\"neType\":\"%s\",\"neTopType\":\"%s\",\"id\":\"%s\"}",json_obj,disk_avgnum,array_data[11],disk_iobytes,array_data[9],array_data[0],netType,neTopType,id);
+                    sprintf(json_obj,"%s,{\"PF_SERVER_DISK_AVGNUM\":\"%s\",\"PF_SERVER_DISK_BUSYRATE\":\"%s\",\"PF_SERVER_DISK_IOBYTES\":\"%s\",\"PF_SERVER_DISK_WAITTIME\":\"%s\",\"PF_SERVER_DISK_NAME\":\"%s\",\"neType\":\"%s\",\"neTopType\":\"%s\",\"neId\":\"%s\",\"neName\":\"%s\"}",json_obj,disk_avgnum,array_data[11],disk_iobytes,array_data[9],array_data[0],netType,neTopType,id,array_data[0]);
                 }
                 line++;
             }
