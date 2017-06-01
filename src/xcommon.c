@@ -206,18 +206,18 @@ int handle_heartbeat_respon_msg(char *str)
     for(i = 0 ; i < cJSON_GetArraySize(root); i++)
     {
         cJSON *obj = cJSON_GetArrayItem(root, i);
-        if(!(cJSON_HasObjectItem(obj,"command"))||!(cJSON_HasObjectItem(obj,"id")))
+        if(!(cJSON_HasObjectItem(obj,"neId"))||!(cJSON_HasObjectItem(obj,"neType")))
         {
             continue;
         }
-        cJSON* cmd_obj = cJSON_GetObjectItem(obj,"command");
-        cJSON* id_obj = cJSON_GetObjectItem(obj,"id");
-        if(cmd_obj->valuestring != "" && id_obj->valuestring != "")
+        cJSON* neId_obj = cJSON_GetObjectItem(obj,"neId");
+        cJSON* neType_obj = cJSON_GetObjectItem(obj,"neType");
+        if(neId_obj->valuestring != "" && neType_obj->valuestring != "")
         {
             // add cmd_name & id  in list
             command_task cmd;
-            strcpy(cmd.comamnd_name,cmd_obj->valuestring);
-            strcpy(cmd.id,id_obj->valuestring);
+            strcpy(cmd.neType,neType_obj->valuestring);
+            strcpy(cmd.neId,neId_obj->valuestring);
             commands_array[i] = cmd;
             command_array_size ++;
         }
@@ -228,8 +228,8 @@ int handle_heartbeat_respon_msg(char *str)
     for (k = 0; k < command_array_size; k++)
     {
         printf("******\n");
-        printf("id: %s\n",commands_array[k].id);
-        printf("name: %s\n",commands_array[k].comamnd_name);
+        printf("id: %s\n",commands_array[k].neId);
+        printf("name: %s\n",commands_array[k].neType);
         printf("******\n");
     }
 
@@ -271,6 +271,7 @@ int my_system(char *command, char *outbuf)
     int size = 0;
     int byte_read = 0;
     char *buffer=outbuf;
+    char tempbuff[MAX_INPUT_BUFFER]={0};
 #ifdef _XNRPE_DEBUG
     printf("%s\n",command);
 #endif
@@ -280,13 +281,14 @@ int my_system(char *command, char *outbuf)
         return -1;
     }
     
-    while((byte_read = fread(buffer+size , 1, sizeof(buffer),fp)) > 0)
+    while((byte_read = fread(tempbuff+size , 1, sizeof(tempbuff),fp)) > 0)
     {
         size += byte_read;
     }
+    strncpy(buffer, tempbuff, size-1);
     pclose(fp);
     fp = NULL;
-    return size;
+    return size-1;
 }
 
 

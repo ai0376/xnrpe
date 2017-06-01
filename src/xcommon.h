@@ -34,14 +34,16 @@
 #define DEFAULT_HEARTBEAT_TIME 5
 #define MAX_COMMAND_NUM 1024
 #define MESSAGE_HEAD_LEN 7
+#define MAX_SYSTEM_RETRUN_BUFFER  819200
 
 #define _XNRPE_DEBUG 1
-#define _TEST   1
+//#define _TEST   1
 
 extern char server_address[NI_MAXHOST];
 extern int server_port;
 extern int sock_send_recv_timeout;
 extern int heartbeat_time;
+extern char local_host[NI_MAXHOST];
 
 extern int command_array_size;
 extern int report_flag;
@@ -59,8 +61,8 @@ typedef struct command_struct{
 
 //task command
 typedef  struct command_task_struct{
-    char comamnd_name[512];
-    char id[512];
+    char neType[512];
+    char neId[512];
 }command_task;
 
 

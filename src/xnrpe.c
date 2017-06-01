@@ -4,6 +4,7 @@
 
 command  *command_list = NULL;
 char server_address[NI_MAXHOST]="";
+char local_host[NI_MAXHOST]="127.0.0.1";
 int server_port=DEFAULT_SERVER_PORT;
 int sock_send_recv_timeout = DEFAULT_SOCK_SEND_RECV_TIMEOUT;
 int heartbeat_time=DEFAULT_HEARTBEAT_TIME;
@@ -52,28 +53,50 @@ void *report_task(void *args)
                 char cmd[512]={0};
                 char id[512]={0};
                 char buf[MAX_INPUT_BUFFER]={0};
-                char outbuf[MAX_INPUT_BUFFER]={0};
+                char json_array[MAX_SYSTEM_RETRUN_BUFFER]={0};
+                char outbuf[MAX_SYSTEM_RETRUN_BUFFER]={0};
+                char mycmd[MAX_COMMAND_NUM]={0};
                 int len = 0;
                 for(index = 0; index < command_array_size ; index++)
                 {
                     memset(cmd,0, 512);
                     memset(id,0, 512);
-                    strcpy(cmd,commands_array[index].comamnd_name);
-                    strcpy(id,commands_array[index].id);
-                    command *tempcommand = find_command(cmd);
-                    if(tempcommand == NULL)
+                    strcpy(cmd,commands_array[index].neType);
+                    strcpy(id,commands_array[index].neId);
+                    //command *tempcommand = find_command(cmd);
+                    /*if(tempcommand == NULL)
                     {
                         fprintf(stdout, "not support cmd:%s\n",cmd);
                         continue;
-                    }
-                    if(strcmp(cmd, "check_disk")==0)
+                    }*/
+                    if(strcmp(cmd, "PF-SERVER-UNIX")==0)
                     {
-                        bzero(buf,MAX_INPUT_BUFFER);
-                        bzero(outbuf,MAX_INPUT_BUFFER);
+                        command *tempcommand = command_list;
+                        
+                        while(tempcommand != NULL)
+                        {
+                            bzero(mycmd, MAX_COMMAND_NUM);
+                            bzero(outbuf,MAX_SYSTEM_RETRUN_BUFFER);
+                            bzero(json_array, MAX_SYSTEM_RETRUN_BUFFER);
+                            //tempcommand->command_name
+                            strcpy(mycmd, tempcommand->command_line);
+                            strcat(mycmd, " ");
+                            strcat(mycmd, id);
+                            bzero(buf,MAX_INPUT_BUFFER);
+                            len = my_system(mycmd,buf);
+                            sprintf(json_array, "[%s]",buf);
+                            len = strlen(json_array);
+                            len = pack_msg(json_array,len,outbuf,1);
+                            report_tcp_information(outbuf, len,0);
+
+                            tempcommand = tempcommand->next;
+                        }
+                        printf("\n*************\n");
+                        /*bzero(outbuf,MAX_INPUT_BUFFER);
                         sprintf(buf, "[{\"values\":{\"PF_SERVER_DISK_IOTIMES\":\"NA\",\"PF_SERVER_DISK_WAITTIME\":\"0.38\",\"PF_SERVER_DISK_BUSYRATE\":\"0.04\",\"PF_SERVER_DISK_IOBYTES\":\"57.73\",\"PF_SERVER_DISK_NAME\":\"cciss/c0d0p1\"},\"neId\":\"%s\",\"neTopType\":\"PF-SERVER-UNIX\",\"neType\":\"PF-SERVER-UNIX-DISKIO\",\"neName\":\"cciss/c0d0p1\"}]",id);
                         len = strlen(buf);
                         len = pack_msg(buf, len,outbuf,1);
-                        report_tcp_information(outbuf, len,0);
+                        report_tcp_information(outbuf, len,0);*/
 #ifdef _XNRPE_DEBUG
                         fprintf(stdout,"had report [%s] info\n",cmd);
 #endif // _XNRPE_DEBUG
@@ -130,13 +153,11 @@ void *task(void *args)
         else if(strcmp(cmd, "ACK") == 0)
         {
             fprintf(stdout,"time: %d cmd: %s\n",time,cmd);
-            strcpy(buf, "[{\"command\":\"check_disk\",\"id\":\"001\"}]");
+            strcpy(buf, "[{\"neIp\":\"127.0.0.1\"}]");
             len = strlen(buf);
             len = pack_msg(buf, len,outbuf,0);
             report_tcp_information(outbuf, len, 1);
         }
-       /* len = pack_msg(cmd, len,outbuf);
-        report_tcp_information(outbuf, len);*/
         sleep(time);
     }
     return ;
@@ -195,7 +216,7 @@ int process_arguments(int argc, char **argv)
 
 int add_command(char *command_name, char *command_line)
 {
-    command *new_command;
+    command *new_command=NULL;
     if(command_name == NULL||command_line == NULL)
     {
         return ERROR;
@@ -458,7 +479,7 @@ int main(int argc,char **argv)
     args1.time=10;
     strcpy(args1.cmd,"ACK");
 
-    int ret = pthread_create(&tid, NULL, task, (void *)&args);
+    int ret = pthread_create(&tid, NULL, task, (void *)&args); //timer  heartbeat
     if(ret)
     {
         perror("pthread_create  threard_heart_beat Fail!");

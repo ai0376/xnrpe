@@ -9,6 +9,20 @@
 
 #define BUFFER_SIZE 2048
 #define MAX_EVENTS 10
+#define MESSAGE_HEAD_LEN 7
+
+int pack_msg(char *inbuf, unsigned int len, char *outbuf,char type)
+{
+    char head[MESSAGE_HEAD_LEN]={0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+    head[2]=0x000000ff&(len >> 24);
+    head[3]=0x000000ff&(len >> 16);
+    head[4]=0x000000ff&(len >> 8);
+    head[5]=0x000000ff&(len >> 0);
+    head[6]=0xff&type;
+    memcpy((void *)outbuf,(void *)&head, MESSAGE_HEAD_LEN);
+    memcpy((void *)(outbuf+MESSAGE_HEAD_LEN), (void *)inbuf, len);
+    return (MESSAGE_HEAD_LEN+len);
+}
 
 int main(int argc, char * argv[])
 {
@@ -18,7 +32,7 @@ int main(int argc, char * argv[])
     struct sockaddr_in my_addr;
     struct sockaddr_in remote_addr;
     int sin_size;
-    char buf[BUFFER_SIZE];
+    char buf[BUFFER_SIZE],outbuf[BUFFER_SIZE];
     if(argc < 2)
     {
         fprintf(stdout, "Please input: ./exe port");
@@ -94,8 +108,7 @@ int main(int argc, char * argv[])
 					perror("epoll_ctl:client_sockfd register failed");
 					exit(EXIT_FAILURE);
 				}
-				printf("\n\naccept client %s\n",inet_ntoa(remote_addr.sin_addr));
-				printf("\ncount:%d\n",count);
+				printf("\naccept [%d] client %s\n",count,inet_ntoa(remote_addr.sin_addr));
 			}
 			else if(events[i].events & EPOLLIN)
 			{
@@ -109,7 +122,7 @@ int main(int argc, char * argv[])
 					event_del.data.fd = events[i].data.fd;
 					event_del.events = 0;
 					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_del.data.fd, &event_del);
-					printf("\n\nxxx---%d\n",count);
+					//printf("\n\nxxx---%d\n",count);
 					close(events[i].data.fd);
 				}
 				else
@@ -117,9 +130,21 @@ int main(int argc, char * argv[])
 					char type = buf[6];
                     if(type == 0)
                     {
-                        int ret = send(events[i].data.fd,buf,len,0);
+						memset(buf,0,BUFFER_SIZE);
+						memset(outbuf,0,BUFFER_SIZE);
+						strcpy(buf, "[{\"neId\":\"40288bf75c4793b4015c47ba31ff0001\",\"neType\":\"PF-SERVER-UNIX\"}]");
+						len = strlen(buf);
+						int ret = pack_msg(buf, len,outbuf,0);
+                        ret = send(events[i].data.fd,outbuf,ret,0);
                         printf("send: %d\n", ret);
                     }
+					else if(type == 1)
+					{
+						memset(outbuf,0,BUFFER_SIZE);
+						len = ((buf[2]&0xFF)<<24|(buf[3]&0xFF)<<16|(buf[4]&0xFF)<<8|(buf[5]&0xFF)<<0);
+						strncpy(outbuf,buf+7, len);
+						printf("report: %s\n",outbuf);
+					}
                    /* else if(type == 1)
                     {
                         char tmp[100]={0};
@@ -138,7 +163,7 @@ int main(int argc, char * argv[])
                         printf("send: %d\n", ret);
                     }*/
 				}
-				printf("receive from client:%d-----%d\n\n",len,count);
+				//printf("receive from client:%d-----%d\n\n",len,count);
 			}
 			else
 			{
