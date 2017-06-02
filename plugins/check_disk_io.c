@@ -2,10 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-extern int errno;
+
 #define DISK_IO_SHELL "iostat -x"
 #define  BUF_SIZE  20480
 #define ID_SIZE 50
+
+extern int errno;
 
 char id[ID_SIZE]={0};
 char *netType = "PF-SERVER-UNIX-DISKIO";

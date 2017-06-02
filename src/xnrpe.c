@@ -52,7 +52,7 @@ void *report_task(void *args)
             {
                 char cmd[512]={0};
                 char id[512]={0};
-                char buf[MAX_INPUT_BUFFER]={0};
+                char buf[MAX_SYSTEM_RETRUN_BUFFER]={0};
                 char json_array[MAX_SYSTEM_RETRUN_BUFFER]={0};
                 char outbuf[MAX_SYSTEM_RETRUN_BUFFER]={0};
                 char mycmd[MAX_COMMAND_NUM]={0};
@@ -82,7 +82,7 @@ void *report_task(void *args)
                             strcpy(mycmd, tempcommand->command_line);
                             strcat(mycmd, " ");
                             strcat(mycmd, id);
-                            bzero(buf,MAX_INPUT_BUFFER);
+                            bzero(buf,MAX_SYSTEM_RETRUN_BUFFER);
                             len = my_system(mycmd,buf);
                             sprintf(json_array, "[%s]",buf);
                             len = strlen(json_array);
@@ -153,7 +153,7 @@ void *task(void *args)
         else if(strcmp(cmd, "ACK") == 0)
         {
             fprintf(stdout,"time: %d cmd: %s\n",time,cmd);
-            strcpy(buf, "[{\"neIp\":\"127.0.0.1\"}]");
+            strcpy(buf, "[{\"neIp\":\"192.168.2.21\"}]");
             len = strlen(buf);
             len = pack_msg(buf, len,outbuf,0);
             report_tcp_information(outbuf, len, 1);

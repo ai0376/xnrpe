@@ -271,7 +271,7 @@ int my_system(char *command, char *outbuf)
     int size = 0;
     int byte_read = 0;
     char *buffer=outbuf;
-    char tempbuff[MAX_INPUT_BUFFER]={0};
+    char tempbuff[MAX_SYSTEM_RETRUN_BUFFER]={0};
 #ifdef _XNRPE_DEBUG
     printf("%s\n",command);
 #endif
