@@ -72,25 +72,36 @@ void *report_task(void *args)
                     if(strcmp(cmd, "PF-SERVER-UNIX")==0)
                     {
                         command *tempcommand = command_list;
-                        
+                        bzero(outbuf,MAX_SYSTEM_RETRUN_BUFFER);
+                        bzero(json_array, MAX_SYSTEM_RETRUN_BUFFER);
+                        int cc=0,flag=0;
                         while(tempcommand != NULL)
                         {
                             bzero(mycmd, MAX_COMMAND_NUM);
-                            bzero(outbuf,MAX_SYSTEM_RETRUN_BUFFER);
-                            bzero(json_array, MAX_SYSTEM_RETRUN_BUFFER);
+                            
                             //tempcommand->command_name
                             strcpy(mycmd, tempcommand->command_line);
                             strcat(mycmd, " ");
                             strcat(mycmd, id);
                             bzero(buf,MAX_SYSTEM_RETRUN_BUFFER);
                             len = my_system(mycmd,buf);
-                            sprintf(json_array, "[%s]",buf);
-                            len = strlen(json_array);
-                            len = pack_msg(json_array,len,outbuf,1);
-                            report_tcp_information(outbuf, len,0);
-
+                            if(cc==0)
+                                sprintf(json_array, "%s",buf);
+                            else
+                                sprintf(json_array, "%s,%s",json_array,buf);
                             tempcommand = tempcommand->next;
+                            flag = 1;
+                            cc++;
                         }
+                        if(flag)
+                        {
+                            bzero(buf, MAX_SYSTEM_RETRUN_BUFFER);
+                            sprintf(buf, "[%s]",json_array);
+                            len = strlen(buf);
+                            len = pack_msg(buf,len,outbuf,1);
+                            report_tcp_information(outbuf, len,0);
+                        }
+
                         printf("\n*************\n");
                         /*bzero(outbuf,MAX_INPUT_BUFFER);
                         sprintf(buf, "[{\"values\":{\"PF_SERVER_DISK_IOTIMES\":\"NA\",\"PF_SERVER_DISK_WAITTIME\":\"0.38\",\"PF_SERVER_DISK_BUSYRATE\":\"0.04\",\"PF_SERVER_DISK_IOBYTES\":\"57.73\",\"PF_SERVER_DISK_NAME\":\"cciss/c0d0p1\"},\"neId\":\"%s\",\"neTopType\":\"PF-SERVER-UNIX\",\"neType\":\"PF-SERVER-UNIX-DISKIO\",\"neName\":\"cciss/c0d0p1\"}]",id);
