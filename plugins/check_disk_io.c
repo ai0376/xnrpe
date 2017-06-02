@@ -13,12 +13,21 @@ char id[ID_SIZE]={0};
 char *netType = "PF-SERVER-UNIX-DISKIO";
 char *neTopType ="PF-SERVER-UNIX";
 
+void str_trim_crlf(char *str) //去除\r\n
+{
+	char *p = &str[strlen(str)-1];
+	while (*p == '\r' || *p == '\n')
+		*p-- = '\0';
+
+}
+
 int split(char *str, char *seg, char array[][100])
 {
     int i=0;
     char *substr = strtok(str, seg);
     while(substr != NULL)
     {
+        str_trim_crlf(substr);
         strcpy(array[i],substr);
         substr = strtok(NULL,seg);
         i++;
