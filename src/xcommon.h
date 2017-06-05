@@ -42,6 +42,7 @@
 extern char server_address[NI_MAXHOST];
 extern int server_port;
 extern int sock_send_recv_timeout;
+extern int report_time;
 extern int heartbeat_time;
 extern char local_host[NI_MAXHOST];
 

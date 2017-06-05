@@ -8,6 +8,7 @@ char local_host[NI_MAXHOST]="127.0.0.1";
 int server_port=DEFAULT_SERVER_PORT;
 int sock_send_recv_timeout = DEFAULT_SOCK_SEND_RECV_TIMEOUT;
 int heartbeat_time=DEFAULT_HEARTBEAT_TIME;
+int report_time = DEFAULT_HEARTBEAT_TIME;
 
 extern int errno;
 struct epoll_event event;
@@ -119,7 +120,7 @@ void *report_task(void *args)
         {
 
         }
-        sleep(5);
+        sleep(report_time);
     }
 }
 //timer task and send message
@@ -164,7 +165,7 @@ void *task(void *args)
         else if(strcmp(cmd, "ACK") == 0)
         {
             fprintf(stdout,"time: %d cmd: %s\n",time,cmd);
-            strcpy(buf, "[{\"neIp\":\"192.168.2.21\"}]");
+            sprintf(buf,"[{\"neIp\":\"%s\"}]",local_host);
             len = strlen(buf);
             len = pack_msg(buf, len,outbuf,0);
             report_tcp_information(outbuf, len, 1);
@@ -362,6 +363,15 @@ int read_config_file(char *filename)
             fprintf(stdout,"GET %s=%s\n",varname,varvalue);
 #endif // _XNRPE_DEBUG
         }
+        else if(!strcmp(varname,"localhost"))
+        {
+            bzero(local_host, NI_MAXHOST);
+            strncpy(local_host, varvalue, sizeof(local_host)-1);
+            local_host[sizeof(local_host)-1] = '\0';
+#ifdef _XNRPE_DEBUG
+            fprintf(stdout,"GET %s=%s\n",varname,varvalue);
+#endif // _XNRPE_DEBUG
+        }
         else if(!strcmp(varname, "sock_send_recv_timeout"))
         {
             sock_send_recv_timeout = atoi(varvalue);
@@ -379,6 +389,17 @@ int read_config_file(char *filename)
             if(heartbeat_time < 0)
             {
                 heartbeat_time = DEFAULT_HEARTBEAT_TIME;
+            }
+#ifdef _XNRPE_DEBUG
+            fprintf(stdout, "GET %s=%s\n",varname,varvalue);
+#endif // _XNRPE_DEBUG
+        }
+        else if(!strcmp(varname, "report_time"))
+        {
+            report_time = atoi(varvalue);
+            if(report_time < 0)
+            {
+                report_time = DEFAULT_HEARTBEAT_TIME;
             }
 #ifdef _XNRPE_DEBUG
             fprintf(stdout, "GET %s=%s\n",varname,varvalue);
@@ -483,11 +504,11 @@ int main(int argc,char **argv)
     */
     ARGS args;
     ARGS args1;
-    args.time=10;
+    args.time=heartbeat_time;
     //strcpy(args.cmd,"check_disk");
     //strcpy(args.cmd,"check_cpu");
     strcpy(args.cmd,"ACK");
-    args1.time=10;
+    args1.time=heartbeat_time;
     strcpy(args1.cmd,"ACK");
 
     int ret = pthread_create(&tid, NULL, task, (void *)&args); //timer  heartbeat
