@@ -293,7 +293,7 @@ void free_memory(void)
 
 int read_config_file(char *filename)
 {
-    struct stat st;
+   // struct stat st;
     FILE *fp;
     char config_file[MAX_FILENAME_LENGTH];
     char input_buffer[MAX_INPUT_BUFFER];
