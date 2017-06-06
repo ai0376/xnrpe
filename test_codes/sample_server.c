@@ -7,7 +7,7 @@
 #include <string.h>
 #include <sys/epoll.h>
 
-#define BUFFER_SIZE 2048
+#define BUFFER_SIZE 819200
 #define MAX_EVENTS 10
 #define MESSAGE_HEAD_LEN 7
 
