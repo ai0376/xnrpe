@@ -2,7 +2,7 @@ CC=gcc
 SRC_DIR=.
 INC_DIR=.
 
-all: check_disk_io check_cpu check_mem
+all: check_disk_io check_cpu check_mem check_version check_swap
 
 check_disk_io: $(SRC_DIR)/check_disk_io.c 
 	$(CC) -I $(INC_DIR) -o $@ $(SRC_DIR)/check_disk_io.c
@@ -12,5 +12,13 @@ check_cpu: $(SRC_DIR)/check_cpu.c
 
 check_mem: $(SRC_DIR)/check_mem.c
 	$(CC) -I $(INC_DIR) -o $@ $(SRC_DIR)/check_mem.c
+
+check_version: $(SRC_DIR)/check_version.c
+	$(CC) -I $(INC_DIR) -o $@ $(SRC_DIR)/check_version.c
+
+check_swap: $(SRC_DIR)/check_swap.c
+	$(CC) -I $(INC_DIR) -o $@ $(SRC_DIR)/check_swap.c
+
+
 clean:
-	rm -rf *.o check_disk_io check_cpu check_mem
+	rm -rf *.o check_disk_io check_cpu check_mem check_version check_swap
