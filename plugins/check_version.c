@@ -8,6 +8,11 @@ extern int errno;
 #define BUFFER_SIZE 819200
 #define ID_SIZE 50
 
+char buf[BUFFER_SIZE]={0};
+char json_obj[BUFFER_SIZE]={0};
+char dststr[BUFFER_SIZE]={0};
+char array_data[100][1024];
+
 char id[ID_SIZE]={0};
 char *netType = "";
 char *neTopType ="PF-SERVER-UNIX";
@@ -59,10 +64,7 @@ int process_arguments(int argc,char **argv)
 int main(int argc,char **argv)
 {
     FILE *fp = NULL;
-    char buf[BUFFER_SIZE]={0};
-    char json_obj[BUFFER_SIZE]={0};
-    char dststr[BUFFER_SIZE]={0};
-    char array_data[100][1024];
+   
     char seg[10]={"\n"};
     char str[512]={0};
     int flag = 0,line=0, ret=0;
