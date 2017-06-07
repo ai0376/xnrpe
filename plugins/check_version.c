@@ -32,7 +32,7 @@ void str_trim_ht(char *str) //去除\t
     }
 }
 
-int split(char *str, char *seg, char array[][100])
+int split(char *str, char *seg, char array[][1024])
 {
     int i=0;
     char *substr = strtok(str, seg);
@@ -62,7 +62,7 @@ int main(int argc,char **argv)
     char buf[BUFFER_SIZE]={0};
     char json_obj[BUFFER_SIZE]={0};
     char dststr[BUFFER_SIZE]={0};
-    char array_data[100][100];
+    char array_data[100][1024];
     char seg[10]={"\n"};
     char str[512]={0};
     int flag = 0,line=0, ret=0;
