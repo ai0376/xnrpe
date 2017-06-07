@@ -61,9 +61,9 @@ int process_arguments(int argc,char **argv)
 int main(int argc,char **argv)
 {
     FILE *fp = NULL;
-    char buf[BUFSIZ]={0};
-    char json_obj[BUFSIZ]={0};
-    char json_array[BUFSIZ]={0};
+    char buf[BUFFER_SIZE]={0};
+    char json_obj[BUFFER_SIZE]={0};
+    char json_array[BUFFER_SIZE]={0};
     char array_data[100][100];
     char seg[10]={" "};
     char str[512]={0};
