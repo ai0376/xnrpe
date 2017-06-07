@@ -5,6 +5,7 @@
 extern int errno;
 #define MEM_SHELL "free | grep -i \"mem\" | awk '{print \"\"($3-$6-$7)/$2*100\"\"}'" // linux memory
 #define  BUF_SIZE  20480
+#define BUFFER_SIZE 819200
 #define ID_SIZE 50
 
 char id[ID_SIZE]={0};

@@ -5,6 +5,7 @@
 extern int errno;
 #define SWAP_SHELL "cat /proc/swaps | tail -1"  // linux swap
 #define  BUF_SIZE  20480
+#define BUFFER_SIZE 819200
 #define ID_SIZE 50
 
 char id[ID_SIZE]={0};

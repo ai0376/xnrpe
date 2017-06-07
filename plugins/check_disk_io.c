@@ -5,6 +5,7 @@
 
 #define DISK_IO_SHELL "iostat -x"
 #define  BUF_SIZE  20480
+#define BUFFER_SIZE 819200
 #define ID_SIZE 50
 
 extern int errno;

@@ -6,6 +6,7 @@ extern int errno;
 //#define CPU_SHELL "vmstat 1 2| tail -n 1" // linux cpus
 #define CPU_SHELL "vmstat | tail -n 1" // linux cpus
 #define  BUF_SIZE  20480
+#define BUFFER_SIZE 819200
 #define ID_SIZE 50
 
 char id[ID_SIZE]={0};

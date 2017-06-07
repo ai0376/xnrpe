@@ -5,6 +5,7 @@
 extern int errno;
 #define VERSION_SHELL "cat /proc/cpuinfo  | grep \"physical id\" | sort | uniq | wc -l;cat /proc/meminfo | grep \"MemTotal\" | cut -f2 -d: | awk '{ print $1 }';getconf LONG_BIT;uname -var;uname -n;uname -r"  // linux swap
 #define  BUF_SIZE  20480
+#define BUFFER_SIZE 819200
 #define ID_SIZE 50
 
 char id[ID_SIZE]={0};
@@ -58,9 +59,9 @@ int process_arguments(int argc,char **argv)
 int main(int argc,char **argv)
 {
     FILE *fp = NULL;
-    char buf[BUFSIZ]={0};
-    char json_obj[BUFSIZ]={0};
-    char dststr[BUFSIZ]={0};
+    char buf[BUFFER_SIZE]={0};
+    char json_obj[BUFFER_SIZE]={0};
+    char dststr[BUFFER_SIZE]={0};
     char array_data[100][100];
     char seg[10]={"\n"};
     char str[512]={0};
@@ -78,7 +79,7 @@ int main(int argc,char **argv)
         fprintf(stdout,"%s\n",buf);
         return -1;
     }
-    memset(dststr, 0 , BUFSIZ);
+    memset(dststr, 0 , BUFFER_SIZE);
     while(fgets(buf, BUF_SIZE,fp)!= NULL)
     {
         strcat(dststr, buf);
