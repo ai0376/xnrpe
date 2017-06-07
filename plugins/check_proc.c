@@ -12,7 +12,7 @@ extern int errno;
 char id[ID_SIZE]={0};
 char *netType = "PF-SERVER-UNIX-PROC";
 char *neTopType ="PF-SERVER-UNIX";
-char *neName="";
+char *neName=NULL;
 
 void str_trim_crlf(char *str) //去除\r\n
 {
@@ -97,15 +97,14 @@ int main(int argc,char **argv)
             bzero(str,512);
             bzero(proc_para,512);
             sprintf(str, "%s %s",array_data[6], array_data[7]);
-            neName = strdup(str);
             sprintf(proc_para,"%s%s%s",array_data[6],array_data[7],array_data[8]);
             if(line == 0)
             {
-                sprintf(json_obj,"{\"values\":{\"PF_SERVER_PROC_ID\":\"%s\",\"PF_SERVER_PROC_NAME\":\"%s\",\"PF_SERVER_PROC_CUPUSED\":\"%s\",\"PF_SERVER_PROC_MEMUSED\":\"%s\",\"PF_SERVER_PROC_STAT\":\"%s\",\"PF_SERVER_PROC_USER\":\"%s\",\"PF_SERVER_PROC_PARA\":\"%s\"},\"neType\":\"%s\",\"neTopType\":\"%s\",\"neId\":\"%s\",\"neName\":\"%s\"}",array_data[0],array_data[1],array_data[2],array_data[3],array_data[4],array_data[5],proc_para,netType,neTopType,id,neName);
+                sprintf(json_obj,"{\"values\":{\"PF_SERVER_PROC_ID\":\"%s\",\"PF_SERVER_PROC_NAME\":\"%s\",\"PF_SERVER_PROC_CUPUSED\":\"%s\",\"PF_SERVER_PROC_MEMUSED\":\"%s\",\"PF_SERVER_PROC_STAT\":\"%s\",\"PF_SERVER_PROC_USER\":\"%s\",\"PF_SERVER_PROC_PARA\":\"%s\"},\"neType\":\"%s\",\"neTopType\":\"%s\",\"neId\":\"%s\",\"neName\":\"%s\"}",array_data[0],array_data[1],array_data[2],array_data[3],array_data[4],array_data[5],proc_para,netType,neTopType,id,str);
             }
             else
             {
-                sprintf(json_obj,"%s,{\"values\":{\"PF_SERVER_PROC_ID\":\"%s\",\"PF_SERVER_PROC_NAME\":\"%s\",\"PF_SERVER_PROC_CUPUSED\":\"%s\",\"PF_SERVER_PROC_MEMUSED\":\"%s\",\"PF_SERVER_PROC_STAT\":\"%s\",\"PF_SERVER_PROC_USER\":\"%s\",\"PF_SERVER_PROC_PARA\":\"%s\"},\"neType\":\"%s\",\"neTopType\":\"%s\",\"neId\":\"%s\",\"neName\":\"%s\"}",json_obj,array_data[0],array_data[1],array_data[2],array_data[3],array_data[4],array_data[5],proc_para,netType,neTopType,id,neName);
+                sprintf(json_obj,"%s,{\"values\":{\"PF_SERVER_PROC_ID\":\"%s\",\"PF_SERVER_PROC_NAME\":\"%s\",\"PF_SERVER_PROC_CUPUSED\":\"%s\",\"PF_SERVER_PROC_MEMUSED\":\"%s\",\"PF_SERVER_PROC_STAT\":\"%s\",\"PF_SERVER_PROC_USER\":\"%s\",\"PF_SERVER_PROC_PARA\":\"%s\"},\"neType\":\"%s\",\"neTopType\":\"%s\",\"neId\":\"%s\",\"neName\":\"%s\"}",json_obj,array_data[0],array_data[1],array_data[2],array_data[3],array_data[4],array_data[5],proc_para,netType,neTopType,id,str);
             }
             line++;
         }
