@@ -3,6 +3,10 @@
 #include <string.h>
 #include <errno.h>
 
+#include <iostream>
+#include <map>
+
+
 extern int errno;
 #define PROCE_SHELL "ps -eo pid,comm,pcpu,pmem,s,user,args | grep \"scf\""
 #define  BUF_SIZE  20480
@@ -18,6 +22,9 @@ char id[ID_SIZE]={0};
 char *netType = "PF-SERVER-UNIX-PROC";
 char *neTopType ="PF-SERVER-UNIX";
 char *neName=NULL;
+
+std::map<string, string> map_process_base;
+std::map<string, string> map_process_cur;
 
 void str_trim_crlf(char *str) //去除\r\n
 {

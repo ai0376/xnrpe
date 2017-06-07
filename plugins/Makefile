@@ -1,4 +1,5 @@
 CC=gcc
+CXX=g++
 SRC_DIR=.
 INC_DIR=.
 
@@ -20,7 +21,7 @@ check_swap: $(SRC_DIR)/check_swap.c
 	$(CC) -I $(INC_DIR) -o $@ $(SRC_DIR)/check_swap.c
 
 check_proc: $(SRC_DIR)/check_proc.c
-	$(CC) -I $(INC_DIR) -o $@ $(SRC_DIR)/check_proc.c
+	$(CXX) -I $(INC_DIR) -o $@ $(SRC_DIR)/check_proc.c
 
 clean:
 	rm -rf *.o check_disk_io check_cpu check_mem check_version check_swap check_proc
