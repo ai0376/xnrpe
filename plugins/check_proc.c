@@ -192,8 +192,8 @@ int main(int argc,char **argv)
             string key, value;
             bzero(str,512);
             bzero(proc_para,512);
-            sprintf(str, "%s %s",array_data[6], array_data[7]);
-            sprintf(proc_para,"%s%s%s",array_data[6],array_data[7],array_data[8]);
+            sprintf(str, "%s %s %s",array_data[5], array_data[6], array_data[7]);
+            sprintf(proc_para,"%s:%s%s%s",array_data[5],array_data[6],array_data[7],array_data[8]);
             key.append(array_data[5]);
             key.append(":");
             key.append(array_data[6]);
@@ -265,7 +265,7 @@ int main(int argc,char **argv)
             proc_info.neType = netType;
             proc_info.neTopType = neTopType;
             proc_info.neId = id;
-            std::string  name = token.at(1)+" "+token.at(2);
+            std::string  name =token.at(0)+" "+ token.at(1)+" "+token.at(2);
             proc_info.neName = name;
             proc_infos.push_back(proc_info);
         }
