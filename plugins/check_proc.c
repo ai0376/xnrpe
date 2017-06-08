@@ -202,7 +202,6 @@ int main(int argc,char **argv)
             key.append(":");
             key.append(array_data[8]);
             value.append(array_data[0]);
-            std::cout << key << " : " << value << std::endl;
             std::map<string, string>::iterator iter= map_process_base.find(key);
             if(iter != map_process_base.end())
             {
