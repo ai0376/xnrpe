@@ -1,8 +1,8 @@
 src/xnrpe
 src/*.o
 src/start.sh
-test_codes/*.o
-test_codes/sample_server
+test_server/*.o
+test_server/sample_server
 plugins/check_disk_io
 plugins/check_mem
 plugins/check_cpu
