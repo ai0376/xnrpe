@@ -86,6 +86,11 @@ void *report_task(void *args)
                             strcat(mycmd, id);
                             bzero(buf,MAX_SYSTEM_RETRUN_BUFFER);
                             len = my_system(mycmd,buf);
+                            if(len == 0)
+                            {
+                                tempcommand = tempcommand->next;
+                                continue;
+                            }
                             if(cc==0)
                                 sprintf(json_array, "%s",buf);
                             else
