@@ -9,4 +9,5 @@ plugins/check_cpu
 plugins/check_swap
 plugins/check_version
 plugins/check_proc
+plugins/check_ifport
 
