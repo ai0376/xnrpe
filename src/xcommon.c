@@ -285,10 +285,15 @@ int my_system(char *command, char *outbuf)
     {
         size += byte_read;
     }
-    strncpy(buffer, tempbuff, size-1);
     pclose(fp);
     fp = NULL;
-    return size-1;
+    if(size != 0)
+    {
+        strncpy(buffer, tempbuff, size-1);
+        return size-1;
+    }
+    else
+        return 0;  
 }
 
 
