@@ -99,14 +99,23 @@ int main(int argc,char **argv)
             {
                 continue;
             }
-            sscanf(array_data[4], "%[0-9]", str);
+            if(ret == 5)
+                sscanf(array_data[3], "%[0-9]", str);
+            else
+                sscanf(array_data[4], "%[0-9]", str);
             if(line == 0)
             {
-                sprintf(json_obj,"{\"values\":{\"PF_SERVER_SIZE\":\"%s\",\"PF_SERVER_USEDSIZE\":\"%s\",\"PF_SERVER_FREESIZE\":\"%s\",\"PF_SERVER_USEDRATE\":\"%s\",\"PF_SERVER_DOC_FILENAME\":\"%s\"},\"neType\":\"%s\",\"neTopType\":\"%s\",\"neId\":\"%s\",\"neName\":\"%s\"}", array_data[1],array_data[2],array_data[3],str,array_data[5],netType,neTopType,id,array_data[5]);
+                if(ret == 5)
+                    sprintf(json_obj,"{\"values\":{\"PF_SERVER_SIZE\":\"%s\",\"PF_SERVER_USEDSIZE\":\"%s\",\"PF_SERVER_FREESIZE\":\"%s\",\"PF_SERVER_USEDRATE\":\"%s\",\"PF_SERVER_DOC_FILENAME\":\"%s\"},\"neType\":\"%s\",\"neTopType\":\"%s\",\"neId\":\"%s\",\"neName\":\"%s\"}", array_data[0],array_data[1],array_data[2],str,array_data[4],netType,neTopType,id,array_data[4]);
+                else
+                    sprintf(json_obj,"{\"values\":{\"PF_SERVER_SIZE\":\"%s\",\"PF_SERVER_USEDSIZE\":\"%s\",\"PF_SERVER_FREESIZE\":\"%s\",\"PF_SERVER_USEDRATE\":\"%s\",\"PF_SERVER_DOC_FILENAME\":\"%s\"},\"neType\":\"%s\",\"neTopType\":\"%s\",\"neId\":\"%s\",\"neName\":\"%s\"}", array_data[1],array_data[2],array_data[3],str,array_data[5],netType,neTopType,id,array_data[5]);
             }
             else
             {
-                sprintf(json_obj,"%s,{\"values\":{\"PF_SERVER_SIZE\":\"%s\",\"PF_SERVER_USEDSIZE\":\"%s\",\"PF_SERVER_FREESIZE\":\"%s\",\"PF_SERVER_USEDRATE\":\"%s\",\"PF_SERVER_DOC_FILENAME\":\"%s\"},\"neType\":\"%s\",\"neTopType\":\"%s\",\"neId\":\"%s\",\"neName\":\"%s\"}", json_obj,array_data[1],array_data[2],array_data[3],str,array_data[5],netType,neTopType,id,array_data[5]);
+                if(ret == 5)
+                    sprintf(json_obj,"%s,{\"values\":{\"PF_SERVER_SIZE\":\"%s\",\"PF_SERVER_USEDSIZE\":\"%s\",\"PF_SERVER_FREESIZE\":\"%s\",\"PF_SERVER_USEDRATE\":\"%s\",\"PF_SERVER_DOC_FILENAME\":\"%s\"},\"neType\":\"%s\",\"neTopType\":\"%s\",\"neId\":\"%s\",\"neName\":\"%s\"}", json_obj,array_data[0],array_data[1],array_data[2],str,array_data[4],netType,neTopType,id,array_data[4]);
+                else
+                    sprintf(json_obj,"%s,{\"values\":{\"PF_SERVER_SIZE\":\"%s\",\"PF_SERVER_USEDSIZE\":\"%s\",\"PF_SERVER_FREESIZE\":\"%s\",\"PF_SERVER_USEDRATE\":\"%s\",\"PF_SERVER_DOC_FILENAME\":\"%s\"},\"neType\":\"%s\",\"neTopType\":\"%s\",\"neId\":\"%s\",\"neName\":\"%s\"}", json_obj,array_data[1],array_data[2],array_data[3],str,array_data[5],netType,neTopType,id,array_data[5]);
             }
             line++;
         }
