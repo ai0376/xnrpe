@@ -24,6 +24,10 @@ int task_flag = true;
 int report_flag = false;
 int show_help = false;
 
+char buf[MAX_SYSTEM_RETRUN_BUFFER]={0};
+char json_array[MAX_SYSTEM_RETRUN_BUFFER]={0};
+char outbuf[MAX_SYSTEM_RETRUN_BUFFER]={0};
+
 //signal function to exit process
 int signal_flag_int = true;
 int signal_flag_term = true;
@@ -53,9 +57,7 @@ void *report_task(void *args)
             {
                 char cmd[512]={0};
                 char id[512]={0};
-                char buf[MAX_SYSTEM_RETRUN_BUFFER]={0};
-                char json_array[MAX_SYSTEM_RETRUN_BUFFER]={0};
-                char outbuf[MAX_SYSTEM_RETRUN_BUFFER]={0};
+                
                 char mycmd[MAX_COMMAND_NUM]={0};
                 int len = 0;
                 for(index = 0; index < command_array_size ; index++)
