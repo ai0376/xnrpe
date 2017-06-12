@@ -223,16 +223,8 @@ int handle_heartbeat_respon_msg(char *str)
         }
     }
 #ifdef _XNRPE_DEBUG
-    int k;
     printf("cmd-array-size: %d\n",command_array_size);
-    for (k = 0; k < command_array_size; k++)
-    {
-        printf("******\n");
-        printf("id: %s\n",commands_array[k].neId);
-        printf("name: %s\n",commands_array[k].neType);
-        printf("******\n");
-    }
-
+   
     char *p = cJSON_PrintUnformatted(root);
     printf("response:%s\n", p);
     if(p != NULL)
