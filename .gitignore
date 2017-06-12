@@ -11,5 +11,7 @@ plugins/check_version
 plugins/check_proc
 plugins/check_ifport
 plugins/check_disk_sys
+plugins/check_informix_basic
+
 data.tmp
 
