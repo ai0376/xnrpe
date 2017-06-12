@@ -109,9 +109,8 @@ void *report_task(void *args)
                             len = pack_msg(buf,len,outbuf,1);
                             report_tcp_information(outbuf, len,0);
                         }
-
-                        printf("\n*************\n");
 #ifdef _XNRPE_DEBUG
+                        printf("\n*************\n");
                         fprintf(stdout,"had report [%s] info\n",cmd);
 #endif // _XNRPE_DEBUG
                     }
@@ -146,7 +145,9 @@ void *task(void *args)
         }
         if(strcmp(cmd, "ACK") == 0) // heartbeat 
         {
+#ifdef _XNRPE_DEBUG
             fprintf(stdout,"time: %d cmd: %s\n",time,cmd);
+#endif
             sprintf(buf,"[{\"neIp\":\"%s\"}]",local_host);
             len = strlen(buf);
             len = pack_msg(buf, len,outbuf,0);
@@ -158,7 +159,7 @@ void *task(void *args)
 }
 
 void usage(int result)
-{
+{    
     printf("\n");
     printf("Welcome to use XNRPE\n");
     printf("License: GPL v2 with exemptions (-h for more info)\n");
