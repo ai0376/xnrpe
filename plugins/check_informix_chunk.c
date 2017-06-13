@@ -110,11 +110,11 @@ int main(int argc,char **argv)
                 sprintf(freerate, "%.2f", (float)free_size/total_size);
                 if(line == 0)
                 {
-                    sprintf(json_obj,"{\"values\":{\"PF_DB_CHUNK_CHK\":\"%s/%s\",\"PF_DB_CHUNK_OFFSET\":\"%s\",\"PF_DB_CHUNK_SIZE\":\"%d\",\"PF_DB_CHUNK_FREESIZE\":\"%s\",\"PF_DB_CHUNK_FREERATE\":\"%s\",\"PF_DB_CHUNK_FLAG\":\"%s\",\"PF_DB_CHUNK_PATHNAME\":\"%s\"},\"neType\":\"%s\",\"neTopType\":\"%s\",\"neId\":\"%s\",\"neName\":\"%s\"}", array_data[1],array_data[2] ,array_data[3],array_data[4],array_data[5],freerate,array_data[6],array_data[7],netType,neTopType,id,array_data[7]);
+                    sprintf(json_obj,"{\"values\":{\"PF_DB_CHUNK_CHK\":\"%s/%s\",\"PF_DB_CHUNK_OFFSET\":\"%s\",\"PF_DB_CHUNK_SIZE\":\"%s\",\"PF_DB_CHUNK_FREESIZE\":\"%s\",\"PF_DB_CHUNK_FREERATE\":\"%s\",\"PF_DB_CHUNK_FLAG\":\"%s\",\"PF_DB_CHUNK_PATHNAME\":\"%s\"},\"neType\":\"%s\",\"neTopType\":\"%s\",\"neId\":\"%s\",\"neName\":\"%s\"}", array_data[1],array_data[2] ,array_data[3],array_data[4],array_data[5],freerate,array_data[6],array_data[7],netType,neTopType,id,array_data[7]);
                 }
                 else
                 {
-                    sprintf(json_obj,"%s,{\"values\":{\"PF_DB_CHUNK_CHK\":\"%s/%s\",\"PF_DB_CHUNK_OFFSET\":\"%s\",\"PF_DB_CHUNK_SIZE\":\"%d\",\"PF_DB_CHUNK_FREESIZE\":\"%s\",\"PF_DB_CHUNK_FREERATE\":\"%s\",\"PF_DB_CHUNK_FLAG\":\"%s\",\"PF_DB_CHUNK_PATHNAME\":\"%s\"},\"neType\":\"%s\",\"neTopType\":\"%s\",\"neId\":\"%s\",\"neName\":\"%s\"}", json_obj,array_data[1],array_data[2] ,array_data[3],array_data[4],array_data[5],freerate,array_data[6],array_data[7],netType,neTopType,id,array_data[7]);
+                    sprintf(json_obj,"%s,{\"values\":{\"PF_DB_CHUNK_CHK\":\"%s/%s\",\"PF_DB_CHUNK_OFFSET\":\"%s\",\"PF_DB_CHUNK_SIZE\":\"%s\",\"PF_DB_CHUNK_FREESIZE\":\"%s\",\"PF_DB_CHUNK_FREERATE\":\"%s\",\"PF_DB_CHUNK_FLAG\":\"%s\",\"PF_DB_CHUNK_PATHNAME\":\"%s\"},\"neType\":\"%s\",\"neTopType\":\"%s\",\"neId\":\"%s\",\"neName\":\"%s\"}", json_obj,array_data[1],array_data[2] ,array_data[3],array_data[4],array_data[5],freerate,array_data[6],array_data[7],netType,neTopType,id,array_data[7]);
                 }
                 line++;
             }
