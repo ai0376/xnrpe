@@ -13,6 +13,7 @@ plugins/check_ifport
 plugins/check_disk_sys
 plugins/check_informix_basic
 plugins/check_informix_chunk_io
+plugins/check_informix_chunk
 
 data.tmp
 

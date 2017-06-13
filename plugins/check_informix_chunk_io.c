@@ -139,5 +139,8 @@ int main(int argc,char **argv)
         }
     }
     printf("%s\n",json_obj);
+
+    fclose(fp);
+    fp = NULL;
     return 0;
 }
