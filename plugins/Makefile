@@ -4,7 +4,8 @@ SRC_DIR=.
 INC_DIR=.
 
 all: check_disk_io check_cpu check_mem check_version check_swap check_proc check_ifport check_disk_sys \
-	check_informix_basic  check_informix_chunk_io check_informix_chunk
+	check_informix_basic  check_informix_chunk_io check_informix_chunk check_informix_dbspace check_informix_log check_informix_logbuff \
+	check_informix_runstat check_informix_sharemem
 
 check_disk_io: $(SRC_DIR)/check_disk_io.c 
 	$(CC) -I $(INC_DIR) -o $@ $(SRC_DIR)/check_disk_io.c
@@ -39,6 +40,22 @@ check_informix_chunk_io: $(SRC_DIR)/check_informix_chunk_io.c
 check_informix_chunk: $(SRC_DIR)/check_informix_chunk.c
 	$(CC) -I $(INC_DIR) -o $@ $(SRC_DIR)/check_informix_chunk.c
 
+check_informix_dbspace: $(SRC_DIR)/check_informix_dbspace.c
+	$(CXX) -I $(INC_DIR) -o $@ $(SRC_DIR)/check_informix_dbspace.c
+
+check_informix_log: $(SRC_DIR)/check_informix_log.c
+	$(CC) -I $(INC_DIR) -o $@ $(SRC_DIR)/check_informix_log.c
+
+check_informix_logbuff: $(SRC_DIR)/check_informix_logbuff.c
+	$(CC) -I $(INC_DIR) -o $@ $(SRC_DIR)/check_informix_logbuff.c
+
+check_informix_runstat: $(SRC_DIR)/check_informix_runstat.c
+	$(CC) -I $(INC_DIR) -o $@ $(SRC_DIR)/check_informix_runstat.c
+
+check_informix_sharemem: $(SRC_DIR)/check_informix_sharemem.c
+	$(CC) -I $(INC_DIR) -o $@ $(SRC_DIR)/check_informix_sharemem.c
+
 clean:
 	rm -rf *.o check_disk_io check_cpu check_mem check_version check_swap check_proc check_ifport check_disk_sys \
-	check_informix_basic  check_informix_chunk_io check_informix_chunk
+	check_informix_basic  check_informix_chunk_io check_informix_chunk check_informix_dbspace check_informix_log check_informix_logbuff \
+	check_informix_runstat check_informix_sharemem

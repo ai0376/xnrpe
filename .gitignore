@@ -14,6 +14,11 @@ plugins/check_disk_sys
 plugins/check_informix_basic
 plugins/check_informix_chunk_io
 plugins/check_informix_chunk
+plugins/check_informix_dbspace
+plugins/check_informix_log
+plugins/check_informix_logbuff
+plugins/check_informix_runstat
+plugins/check_informix_sharemem
 
 data.tmp
 
