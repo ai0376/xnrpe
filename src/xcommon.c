@@ -1,7 +1,8 @@
 #include "xcommon.h"
 #include "cJSON.h"
 
-command_task commands_array[MAX_COMMAND_NUM]={0};
+command_task commands_array[MAX_COMMAND_NUM];
+
 int command_array_size= 0 ;
 
 int setnonblocking(int sock)
@@ -212,7 +213,7 @@ int handle_heartbeat_respon_msg(char *str)
         }
         cJSON* neId_obj = cJSON_GetObjectItem(obj,"neId");
         cJSON* neType_obj = cJSON_GetObjectItem(obj,"neType");
-        if(neId_obj->valuestring != "" && neType_obj->valuestring != "")
+        if((neId_obj->valuestring != NULL ) && (neType_obj->valuestring != NULL))
         {
             // add cmd_name & id  in list
             command_task cmd;

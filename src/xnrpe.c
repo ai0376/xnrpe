@@ -66,12 +66,7 @@ void *report_task(void *args)
                     memset(id,0, 512);
                     strcpy(cmd,commands_array[index].neType);
                     strcpy(id,commands_array[index].neId);
-                    //command *tempcommand = find_command(cmd);
-                    /*if(tempcommand == NULL)
-                    {
-                        fprintf(stdout, "not support cmd:%s\n",cmd);
-                        continue;
-                    }*/
+                    
                     if(strcmp(cmd, "PF-SERVER-UNIX")==0)
                     {
                         command *tempcommand = command_list;
@@ -155,7 +150,7 @@ void *task(void *args)
         }
         sleep(time);
     }
-    return ;
+    return NULL;
 }
 
 void usage(int result)
@@ -277,7 +272,7 @@ int read_config_file(char *filename)
 {
    // struct stat st;
     FILE *fp;
-    char config_file[MAX_FILENAME_LENGTH];
+    //char config_file[MAX_FILENAME_LENGTH];
     char input_buffer[MAX_INPUT_BUFFER];
     char *input_line;
     char *temp_buffer;
@@ -427,7 +422,6 @@ int main(int argc,char **argv)
 {
     struct sigaction action;
     int result = OK;
-    int epfd;
     pthread_t tid,tid1;
     char buffer[MAX_INPUT_BUFFER];
 
