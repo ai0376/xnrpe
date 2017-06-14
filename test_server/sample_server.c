@@ -132,7 +132,8 @@ int main(int argc, char * argv[])
                     {
 						memset(buf,0,BUFFER_SIZE);
 						memset(outbuf,0,BUFFER_SIZE);
-						strcpy(buf, "[{\"neId\":\"40288bf75c4793b4015c47ba31ff0001\",\"neType\":\"PF-SERVER-UNIX\"}]");
+						//strcpy(buf, "[{\"neId\":\"40288bf75c4793b4015c47ba31ff0001\",\"neType\":\"PF-SERVER-UNIX\"}]");
+						strcpy(buf, "[{\"neId\":\"40288bf75c4793b4015c47ba31ff0001\",\"neType\":\"PF-SERVER-UNIX\"},{\"neId\":\"40288bf75c4793b4015c47ba31ff0002\",\"neType\":\"PF-DB-INFORMIX\"}]");
 						len = strlen(buf);
 						int ret = pack_msg(buf, len,outbuf,0);
                         ret = send(events[i].data.fd,outbuf,ret,0);

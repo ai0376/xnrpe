@@ -67,7 +67,8 @@ void *report_task(void *args)
                     strcpy(cmd,commands_array[index].neType);
                     strcpy(id,commands_array[index].neId);
                     
-                    if(strcmp(cmd, "PF-SERVER-UNIX")==0)
+
+                    if(strcmp(cmd, "PF-SERVER-UNIX")==0 || strcmp(cmd, "PF-DB-INFORMIX")==0)
                     {
                         command *tempcommand = command_list;
                         bzero(outbuf,MAX_SYSTEM_RETRUN_BUFFER);
@@ -76,13 +77,20 @@ void *report_task(void *args)
                         while(tempcommand != NULL)
                         {
                             bzero(mycmd, MAX_COMMAND_NUM);
-                            
                             //tempcommand->command_name
                             strcpy(mycmd, tempcommand->command_line);
                             strcat(mycmd, " ");
                             strcat(mycmd, id);
                             bzero(buf,MAX_SYSTEM_RETRUN_BUFFER);
-                            len = my_system(mycmd,buf);
+                            char cmdname[512]={0};
+                            strcpy(cmdname, tempcommand->command_name);
+                            char *type = strtok(cmdname, "_");
+                            type = strtok(NULL, "_");
+                            len = 0;
+                            if((strcmp(type,"informix") != 0) && (strcmp(cmd, "PF-SERVER-UNIX")==0))                        
+                                len = my_system(mycmd,buf);
+                            else if((strcmp(type,"informix") == 0) && (strcmp(cmd, "PF-DB-INFORMIX")==0))
+                                len = my_system(mycmd,buf);
                             if(len == 0)
                             {
                                 tempcommand = tempcommand->next;
