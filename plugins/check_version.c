@@ -66,8 +66,7 @@ int main(int argc,char **argv)
     FILE *fp = NULL;
    
     char seg[10]={"\n"};
-    char str[512]={0};
-    int flag = 0,line=0, ret=0;
+    int ret=0;
     int memsize;
     ret = process_arguments(argc,argv);
     if(ret != 0)

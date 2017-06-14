@@ -68,9 +68,8 @@ int main(int argc,char **argv)
 {
     FILE *fp = NULL;
     char seg[10] = {" "};
-    char str[512]={0};
     int ret, line=0;
-    int flag = 0, val1, val2,val3;
+    int val1, val2,val3;
     char lock_waits_str[50]={0};
     char buffer_waits_str[50]={0};
 

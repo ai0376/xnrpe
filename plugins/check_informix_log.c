@@ -68,10 +68,7 @@ int main(int argc,char **argv)
 {
     FILE *fp = NULL;
     char seg[10] = {" "};
-    char str[512]={0};
-    char freerate[20]={0};
     int ret, line=0;
-    int flag = 0, free_size, total_size;
     
     ret = process_arguments(argc,argv);
     if(ret != 0)

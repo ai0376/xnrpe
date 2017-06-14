@@ -68,7 +68,6 @@ int main(int argc,char **argv)
 {
     FILE *fp = NULL;
     char seg[10] = {" "};
-    char str[512]={0};
     char version[512]={0};
     int ret, line=0,flag=0;
     unsigned int readnum, writenum,total;

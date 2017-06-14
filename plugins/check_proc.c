@@ -252,7 +252,7 @@ int main(int argc,char **argv)
         else //process has down
         {
             std::vector<string> token;
-            size_t n = cxxsplit(key, &token,":");
+            cxxsplit(key, &token,":");
             
             type_proc_info proc_info;
             proc_info.pf_server_proc_id = "0";

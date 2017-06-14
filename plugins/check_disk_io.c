@@ -57,7 +57,6 @@ int main(int argc,char **argv)
     FILE *fp = NULL;
     
     char seg[10]={" "};
-    char str[512]={0};
     int flag = 0,line=0, ret=0;
     char disk_iobytes[10],disk_avgnum[10];
     ret = process_arguments(argc,argv);
