@@ -42,13 +42,13 @@ void fun_term(int arg)
 void handle_pipe(int sig)
 {
     //fprintf(stdout, "catch a SIGPIPE signal");
-    serverLog(LL_NOTICE,"catch a SIGPIPE signal");
+    logit(LL_NOTICE,"catch a SIGPIPE signal");
     return;
 }
 
 void *report_task(void *args)
 {
-    serverLog(LL_NOTICE,"report thread start");
+    logit(LL_NOTICE,"report thread start");
     int index=0;
     while(true)
     {
@@ -113,7 +113,7 @@ void *report_task(void *args)
                             len = pack_msg(buf,len,outbuf,1);
                             report_tcp_information(outbuf, len,0);
 #ifdef _XNRPE_DEBUG
-                        serverLog(LL_DEBUG, "had report [%s] info",cmd);
+                        logit(LL_DEBUG, "had report [%s] info",cmd);
 #endif // _XNRPE_DEBUG
                         }
                     }
@@ -130,7 +130,7 @@ void *report_task(void *args)
 //timer task and send message
 void *task(void *args)
 {
-    serverLog(LL_NOTICE,"heartbeat thread start");
+    logit(LL_NOTICE,"heartbeat thread start");
     ARGS *args_value = (ARGS *)args;
     int time = args_value->time;
     char cmd[MAX_INPUT_BUFFER] ="";
@@ -150,7 +150,7 @@ void *task(void *args)
         {
 #ifdef _XNRPE_DEBUG
             //fprintf(stdout,"time: %d cmd: %s\n",time,cmd);
-             serverLog(LL_DEBUG, "time: %d cmd: %s\n",time,cmd);
+             logit(LL_DEBUG, "time: %d cmd: %s\n",time,cmd);
 #endif
             sprintf(buf,"[{\"neIp\":\"%s\"}]",local_host);
             len = strlen(buf);
@@ -529,21 +529,21 @@ int main(int argc,char **argv)
     int ret = pthread_create(&tid, NULL, task, (void *)&args); //timer  heartbeat
     if(ret)
     {
-        serverLog(LL_NOTICE,"pthread_create  threard_heart_beat Fail!");
+        logit(LL_NOTICE,"pthread_create  threard_heart_beat Fail!");
         return -1;
     }
 
     int ret1 = pthread_create(&tid1, NULL, report_task, (void *)&args1);
     if(ret1)
     {
-        serverLog(LL_NOTICE,"pthread_create  report task Fail!");
+        logit(LL_NOTICE,"pthread_create  report task Fail!");
         return -1;
     }
 
     //register signal
     signal(SIGINT,fun_int);
     signal(SIGTERM,fun_term);
-    serverLog(LL_NOTICE,"xnrpe start success,pid=%d",(int)getpid());
+    logit(LL_NOTICE,"xnrpe start success,pid=%d",(int)getpid());
     while(signal_flag_int&&signal_flag_term)
     {
         sleep(1);
@@ -552,7 +552,7 @@ int main(int argc,char **argv)
     pthread_join(tid, NULL);
     pthread_cancel(tid1);
     pthread_join(tid1, NULL);
-    serverLog(LL_NOTICE, "exit success!");
+    logit(LL_NOTICE, "exit success!");
     free_memory();
     return 0;
 }

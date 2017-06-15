@@ -135,7 +135,6 @@ int handle_heartbeat_respon_msg(char *str);
 void create_pid_file();
 void create_daemonize();
 
-void serverLogRaw(int level, const char *msg);
-void serverLog(int level, const char *fmt, ...);
-
+void logit_raw(int level, const char *msg);
+void logit(int level, const char *fmt, ...);
 #endif // __XCOMMON_H

@@ -73,7 +73,7 @@ int report_tcp_information(char *info, int len, int recv_flag)
     address.sin_family = AF_INET;
 #ifdef _XNRPE_DEBUG
     //fprintf(stdout,"\nremote:%s:%d\n",server_address,server_port);
-    serverLog(LL_DEBUG, "remote:%s:%d",server_address,server_port);
+    logit(LL_DEBUG, "remote:%s:%d",server_address,server_port);
 #endif
     address.sin_port = htons(server_port);
 
@@ -85,13 +85,13 @@ int report_tcp_information(char *info, int len, int recv_flag)
     if(fd < 0)
     {
         //perror("socket() failed");
-        serverLog(LL_WARNING, "socket() failed");
+        logit(LL_WARNING, "socket() failed");
         return ERROR;
     }
     if(connect(fd, (struct sockaddr *)&address, sizeof(address)) != 0)
     {
         //perror("connect() failed");
-        serverLog(LL_WARNING, "connect() failed");
+        logit(LL_WARNING, "connect() failed");
         close(fd);
         return ERROR;
     }
@@ -128,7 +128,7 @@ int send_tcp_all(int s,char *buf, int len)
     }
 #ifdef _XNRPE_DEBUG
     //fprintf(stdout,"\n\nsend_tcp_all:%d----send total=%d\n\n",len,total);
-    serverLog(LL_DEBUG, "send_tcp_all:%d----send total=%d",len,total);
+    logit(LL_DEBUG, "send_tcp_all:%d----send total=%d",len,total);
 #endif
     len = total;                /* return number of bytes actually sent here */
     return n == -1 ? -1 : 0;    /* return -1 on failure, 0 on success */
@@ -144,13 +144,13 @@ int read_response(int sock, char *buf)
     if(recvd == -1 && errno == EAGAIN)
     {
         //fprintf(stdout, "recv timeout\n");
-        serverLog(LL_WARNING, "recv timeout");
+        logit(LL_WARNING, "recv timeout");
         return -1;
     }
     else if(recvd <= 0)
     {
         //fprintf(stdout, "recv failed\n");
-        serverLog(LL_WARNING, "recv failed");
+        logit(LL_WARNING, "recv failed");
         return -1;
     }
     total += recvd;
@@ -162,13 +162,13 @@ int read_response(int sock, char *buf)
         if(recvd == -1 && errno == EAGAIN)
         {
             //fprintf(stdout, "recv timeout\n");
-            serverLog(LL_WARNING, "recv timeout");
+            logit(LL_WARNING, "recv timeout");
             return -1;
         }
         else if(recvd <= 0)
         {
             //fprintf(stdout, "recv failed\n");
-            serverLog(LL_WARNING, "recv failed");
+            logit(LL_WARNING, "recv failed");
             return -1;
         }
         total += recvd;
@@ -202,12 +202,12 @@ int handle_heartbeat_respon_msg(char *str)
     cJSON *root =cJSON_Parse(str);
     if(root == NULL)
     {
-        serverLog(LL_WARNING, "Json Parse error");
+        logit(LL_WARNING, "Json Parse error");
         return -1;
     }
     if(!cJSON_IsArray(root))
     {
-        serverLog(LL_WARNING, "item not array");
+        logit(LL_WARNING, "item not array");
         cJSON_Delete(root);
         return -1;
     }
@@ -235,9 +235,9 @@ int handle_heartbeat_respon_msg(char *str)
     }
 #ifdef _XNRPE_DEBUG
     //printf("cmd-array-size: %d\n",command_array_size);
-    serverLog(LL_DEBUG, "cmd-array-size: %d",command_array_size);
+    logit(LL_DEBUG, "cmd-array-size: %d",command_array_size);
     char *p = cJSON_PrintUnformatted(root);
-    serverLog(LL_DEBUG, "response:%s",p);
+    logit(LL_DEBUG, "response:%s",p);
     if(p != NULL)
     {
         free(p);
@@ -254,7 +254,7 @@ int handle_response_message(char *buf, int len)
     char temp[MAX_INPUT_BUFFER]="";
     int json_size = ((buf[2]&0xFF)<<24|(buf[3]&0xFF)<<16|(buf[4]&0xFF)<<8|(buf[5]&0xFF)<<0);
 #ifdef _XNRPE_DEBUG
-             serverLog(LL_DEBUG, "len = %d, json_size=%d", len,json_size);
+             logit(LL_DEBUG, "len = %d, json_size=%d", len,json_size);
 #endif
     memcpy(temp, msg+MESSAGE_HEAD_LEN, json_size);
     char type = buf[6];
@@ -278,12 +278,12 @@ int my_system(char *command, char *outbuf)
     char tempbuff[MAX_SYSTEM_RETRUN_BUFFER]={0};
 #ifdef _XNRPE_DEBUG
     //printf("%s\n",command);
-    serverLog(LL_DEBUG, "%s\n",command);
+    logit(LL_DEBUG, "%s\n",command);
 #endif
     if((fp=popen(command, "r")) == NULL)
     {
         //fprintf(stdout,"popen error: %s",strerror(errno));
-        serverLog(LL_WARNING, "popen error: %s",strerror(errno));
+        logit(LL_WARNING, "popen error: %s",strerror(errno));
         return -1;
     }
     
@@ -312,7 +312,7 @@ void create_pid_file()
     if(fp)
     {
         fprintf(fp,"%d\n",(int)getpid());
-        serverLog(LL_NOTICE,"create pid file success");
+        logit(LL_NOTICE,"create pid file success");
         fclose(fp);
     }
 }
@@ -325,7 +325,7 @@ void create_daemonize()
         exit(0);
     }
     setsid();
-    serverLog(LL_NOTICE,"setsid success");
+    logit(LL_NOTICE,"setsid success");
     if((fd == open("/dev/null",O_RDWR, 0)) != -1)
     {
         dup2(fd, STDIN_FILENO);
@@ -336,9 +336,9 @@ void create_daemonize()
     }
 }
 
-void serverLogRaw(int level, const char *msg) 
+void logit_raw(int level, const char *msg)
 {
-   // const int syslogLevelMap[] = { LOG_DEBUG, LOG_INFO, LOG_NOTICE, LOG_WARNING };
+    // const int syslogLevelMap[] = { LOG_DEBUG, LOG_INFO, LOG_NOTICE, LOG_WARNING };
     const char *c = ".-*#";
     FILE *fp;
     char buf[64];
@@ -356,9 +356,12 @@ void serverLogRaw(int level, const char *msg)
     if (!fp) 
         return;
 
-    if (rawmode) {
+    if (rawmode) 
+    {
         fprintf(fp,"%s",msg);
-    } else {
+    } 
+    else 
+    {
         int off;
         struct timeval tv;
         
@@ -375,10 +378,10 @@ void serverLogRaw(int level, const char *msg)
    // if (server.syslog_enabled) syslog(syslogLevelMap[level], "%s", msg);
 }
 
-/* Like serverLogRaw() but with printf-alike support. This is the function that
+/* Like logit_raw() but with printf-alike support. This is the function that
  * is used across the code. The raw version is only used in order to dump
  * the INFO output on crash. */
-void serverLog(int level, const char *fmt, ...) 
+void logit(int level, const char *fmt, ...)
 {
     va_list ap;
     char msg[LOG_MAX_LEN];
@@ -389,7 +392,6 @@ void serverLog(int level, const char *fmt, ...)
     vsnprintf(msg, sizeof(msg), fmt, ap);
     va_end(ap);
 
-    serverLogRaw(level,msg);
+    logit_raw(level,msg);
 }
-
 
