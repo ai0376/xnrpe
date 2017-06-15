@@ -20,5 +20,6 @@ plugins/check_informix_logbuff
 plugins/check_informix_runstat
 plugins/check_informix_sharemem
 
-data.tmp
-
+*.tmp
+*.log
+*.pid

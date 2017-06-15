@@ -16,8 +16,9 @@
 #include <sys/epoll.h>
 #include <fcntl.h>
 #include <signal.h>
-
+#include <syslog.h>
 #include <sys/time.h>
+#include <stdarg.h>
 
 #define true 1
 #define false 0
@@ -37,9 +38,18 @@
 #define MAX_COMMAND_NUM 1024
 #define MESSAGE_HEAD_LEN 7
 #define MAX_SYSTEM_RETRUN_BUFFER  819200
+#define LOG_MAX_LEN  1024
+#define CONFIG_DEFAULT_PID_FILE "/var/run/xnrpe.pid"
+#define LOG_DEFAULT_FILE "/var/log/xnrpe.log"
 
 #define _XNRPE_DEBUG 1
 //#define _TEST   1
+
+#define LL_DEBUG 0
+#define LL_VERBOSE 1
+#define LL_NOTICE 2
+#define LL_WARNING 3
+#define LL_RAW (1<<10) 
 
 extern char server_address[NI_MAXHOST];
 extern int server_port;
@@ -47,9 +57,13 @@ extern int sock_send_recv_timeout;
 extern int report_time;
 extern int heartbeat_time;
 extern char local_host[NI_MAXHOST];
+extern char pid_file_path[MAX_INPUT_BUFFER];
+
+extern char *log_file;
 
 extern int command_array_size;
 extern int report_flag;
+extern int daemonize;
 
 typedef struct args{
     int time; //seconds
@@ -116,5 +130,12 @@ json example: [{"command":"check_disk","id":"001"}]
 */
 int handle_heartbeat_respon_msg(char *str);
 
+
+/////xnrpe.c functions//////
+void create_pid_file();
+void create_daemonize();
+
+void serverLogRaw(int level, const char *msg);
+void serverLog(int level, const char *fmt, ...);
 
 #endif // __XCOMMON_H

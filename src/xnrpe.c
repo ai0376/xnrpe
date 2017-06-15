@@ -1,7 +1,5 @@
 #include "xcommon.h"
 
-
-
 command  *command_list = NULL;
 char server_address[NI_MAXHOST]="";
 char local_host[NI_MAXHOST]="127.0.0.1";
@@ -9,6 +7,7 @@ int server_port=DEFAULT_SERVER_PORT;
 int sock_send_recv_timeout = DEFAULT_SOCK_SEND_RECV_TIMEOUT;
 int heartbeat_time=DEFAULT_HEARTBEAT_TIME;
 int report_time = DEFAULT_HEARTBEAT_TIME;
+int daemonize = 0;
 
 extern int errno;
 struct epoll_event event;
@@ -42,12 +41,14 @@ void fun_term(int arg)
 
 void handle_pipe(int sig)
 {
-    fprintf(stdout, "catch a SIGPIPE signal");
+    //fprintf(stdout, "catch a SIGPIPE signal");
+    serverLog(LL_NOTICE,"catch a SIGPIPE signal");
     return;
 }
 
 void *report_task(void *args)
 {
+    serverLog(LL_NOTICE,"report thread start");
     int index=0;
     while(true)
     {
@@ -111,11 +112,10 @@ void *report_task(void *args)
                             len = strlen(buf);
                             len = pack_msg(buf,len,outbuf,1);
                             report_tcp_information(outbuf, len,0);
-                        }
 #ifdef _XNRPE_DEBUG
-                        printf("\n*************\n");
-                        fprintf(stdout,"had report [%s] info\n",cmd);
+                        serverLog(LL_DEBUG, "had report [%s] info",cmd);
 #endif // _XNRPE_DEBUG
+                        }
                     }
                 }
             }
@@ -130,7 +130,7 @@ void *report_task(void *args)
 //timer task and send message
 void *task(void *args)
 {
-
+    serverLog(LL_NOTICE,"heartbeat thread start");
     ARGS *args_value = (ARGS *)args;
     int time = args_value->time;
     char cmd[MAX_INPUT_BUFFER] ="";
@@ -149,7 +149,8 @@ void *task(void *args)
         if(strcmp(cmd, "ACK") == 0) // heartbeat 
         {
 #ifdef _XNRPE_DEBUG
-            fprintf(stdout,"time: %d cmd: %s\n",time,cmd);
+            //fprintf(stdout,"time: %d cmd: %s\n",time,cmd);
+             serverLog(LL_DEBUG, "time: %d cmd: %s\n",time,cmd);
 #endif
             sprintf(buf,"[{\"neIp\":\"%s\"}]",local_host);
             len = strlen(buf);
@@ -273,6 +274,11 @@ void free_memory(void)
         this_command = next_command;
     }
     command_list = NULL;
+    if(log_file != NULL)
+    {
+        free(log_file);
+        log_file = NULL;
+    }
     return;
 }
 
@@ -390,6 +396,48 @@ int read_config_file(char *filename)
             fprintf(stdout, "GET %s=%s\n",varname,varvalue);
 #endif // _XNRPE_DEBUG
         }
+        else if(!strcmp(varname, "daemonize"))
+        {
+            if(strcasecmp(varvalue, "yes")==0)
+            {
+                daemonize=1;
+            }
+            else if(strcasecmp(varvalue, "no")==0)
+            {
+                daemonize=0;
+            }
+            else
+            {
+                fprintf(stderr, "argument must be 'yes' or 'no'");
+            }
+#ifdef _XNRPE_DEBUG
+            fprintf(stdout, "GET %s=%s\n",varname,varvalue);
+#endif // _XNRPE_DEBUG
+        }
+        else if(!strcmp(varname, "pidfile"))
+        {
+            bzero(pid_file_path, MAX_INPUT_BUFFER);
+            strncpy(pid_file_path, varvalue, sizeof(pid_file_path)-1);
+            pid_file_path[sizeof(pid_file_path)-1] = '\0';
+#ifdef _XNRPE_DEBUG
+            fprintf(stdout, "GET %s=%s\n",varname,varvalue);
+#endif // _XNRPE_DEBUG
+        }
+        else if(!strcmp(varname, "logfile"))
+        {
+            FILE *fp;
+            if(log_file)
+                free(log_file);
+            log_file = strdup(varvalue);
+            if(log_file[0] != '\0')
+            {
+                fp = fopen(log_file, "a");
+                fclose(fp);
+            }
+#ifdef _XNRPE_DEBUG
+            fprintf(stdout, "GET %s=%s\n",varname,varvalue);
+#endif // _XNRPE_DEBUG
+        }
         else if(strstr(input_line, "command["))
         {
             temp_buffer = strtok(varname,"[");
@@ -459,7 +507,12 @@ int main(int argc,char **argv)
     //read the config file
     result = read_config_file(config_file);
     /*****/
-
+    if(daemonize)
+    {
+        create_daemonize();
+        create_pid_file();
+    }
+    
     action.sa_handler = handle_pipe;
     sigemptyset(&action.sa_mask);
     action.sa_flags = 0;
@@ -476,21 +529,21 @@ int main(int argc,char **argv)
     int ret = pthread_create(&tid, NULL, task, (void *)&args); //timer  heartbeat
     if(ret)
     {
-        perror("pthread_create  threard_heart_beat Fail!");
+        serverLog(LL_NOTICE,"pthread_create  threard_heart_beat Fail!");
         return -1;
     }
 
     int ret1 = pthread_create(&tid1, NULL, report_task, (void *)&args1);
     if(ret1)
     {
-        perror("pthread_create  threard_heart_beat Fail!");
+        serverLog(LL_NOTICE,"pthread_create  report task Fail!");
         return -1;
     }
 
     //register signal
     signal(SIGINT,fun_int);
     signal(SIGTERM,fun_term);
-
+    serverLog(LL_NOTICE,"xnrpe start success,pid=%d",(int)getpid());
     while(signal_flag_int&&signal_flag_term)
     {
         sleep(1);
@@ -499,10 +552,8 @@ int main(int argc,char **argv)
     pthread_join(tid, NULL);
     pthread_cancel(tid1);
     pthread_join(tid1, NULL);
+    serverLog(LL_NOTICE, "exit success!");
     free_memory();
-#ifdef _XNRPE_DEBUG
-    fprintf(stdout, "\nexit success!\n");
-#endif
     return 0;
 }
 #endif

@@ -2,6 +2,8 @@
 #include "cJSON.h"
 
 command_task commands_array[MAX_COMMAND_NUM];
+char pid_file_path[MAX_INPUT_BUFFER]={0};
+char *log_file=NULL ;
 
 int command_array_size= 0 ;
 
@@ -70,7 +72,8 @@ int report_tcp_information(char *info, int len, int recv_flag)
     memset(&address, 0, sizeof(address));
     address.sin_family = AF_INET;
 #ifdef _XNRPE_DEBUG
-    fprintf(stdout,"\nremote:%s:%d\n",server_address,server_port);
+    //fprintf(stdout,"\nremote:%s:%d\n",server_address,server_port);
+    serverLog(LL_DEBUG, "remote:%s:%d",server_address,server_port);
 #endif
     address.sin_port = htons(server_port);
 
@@ -81,12 +84,14 @@ int report_tcp_information(char *info, int len, int recv_flag)
     int fd = socket(AF_INET, SOCK_STREAM, 0);
     if(fd < 0)
     {
-        perror("socket() failed");
+        //perror("socket() failed");
+        serverLog(LL_WARNING, "socket() failed");
         return ERROR;
     }
     if(connect(fd, (struct sockaddr *)&address, sizeof(address)) != 0)
     {
-        perror("connect() failed");
+        //perror("connect() failed");
+        serverLog(LL_WARNING, "connect() failed");
         close(fd);
         return ERROR;
     }
@@ -122,7 +127,8 @@ int send_tcp_all(int s,char *buf, int len)
         bytesleft -= n;
     }
 #ifdef _XNRPE_DEBUG
-    fprintf(stdout,"\n\nsend_tcp_all:%d----send total=%d\n\n",len,total);
+    //fprintf(stdout,"\n\nsend_tcp_all:%d----send total=%d\n\n",len,total);
+    serverLog(LL_DEBUG, "send_tcp_all:%d----send total=%d",len,total);
 #endif
     len = total;                /* return number of bytes actually sent here */
     return n == -1 ? -1 : 0;    /* return -1 on failure, 0 on success */
@@ -137,12 +143,14 @@ int read_response(int sock, char *buf)
     int recvd = recv(sock, buf, MAX_INPUT_BUFFER, 0);
     if(recvd == -1 && errno == EAGAIN)
     {
-        fprintf(stdout, "recv timeout\n");
+        //fprintf(stdout, "recv timeout\n");
+        serverLog(LL_WARNING, "recv timeout");
         return -1;
     }
     else if(recvd <= 0)
     {
-        fprintf(stdout, "recv failed\n");
+        //fprintf(stdout, "recv failed\n");
+        serverLog(LL_WARNING, "recv failed");
         return -1;
     }
     total += recvd;
@@ -153,12 +161,14 @@ int read_response(int sock, char *buf)
         recvd = recv(sock, buf+total,MAX_INPUT_BUFFER, 0);
         if(recvd == -1 && errno == EAGAIN)
         {
-            fprintf(stdout, "recv timeout\n");
+            //fprintf(stdout, "recv timeout\n");
+            serverLog(LL_WARNING, "recv timeout");
             return -1;
         }
         else if(recvd <= 0)
         {
-            fprintf(stdout, "recv failed\n");
+            //fprintf(stdout, "recv failed\n");
+            serverLog(LL_WARNING, "recv failed");
             return -1;
         }
         total += recvd;
@@ -192,12 +202,12 @@ int handle_heartbeat_respon_msg(char *str)
     cJSON *root =cJSON_Parse(str);
     if(root == NULL)
     {
-        fprintf(stdout, "Json Parse error");
+        serverLog(LL_WARNING, "Json Parse error");
         return -1;
     }
     if(!cJSON_IsArray(root))
     {
-        fprintf(stdout, "item not array");
+        serverLog(LL_WARNING, "item not array");
         cJSON_Delete(root);
         return -1;
     }
@@ -224,10 +234,10 @@ int handle_heartbeat_respon_msg(char *str)
         }
     }
 #ifdef _XNRPE_DEBUG
-    printf("cmd-array-size: %d\n",command_array_size);
-   
+    //printf("cmd-array-size: %d\n",command_array_size);
+    serverLog(LL_DEBUG, "cmd-array-size: %d",command_array_size);
     char *p = cJSON_PrintUnformatted(root);
-    printf("response:%s\n", p);
+    serverLog(LL_DEBUG, "response:%s",p);
     if(p != NULL)
     {
         free(p);
@@ -243,9 +253,10 @@ int handle_response_message(char *buf, int len)
     char *msg = buf;
     char temp[MAX_INPUT_BUFFER]="";
     int json_size = ((buf[2]&0xFF)<<24|(buf[3]&0xFF)<<16|(buf[4]&0xFF)<<8|(buf[5]&0xFF)<<0);
-    printf("\nlen = %d, json_size=%d\n", len,json_size);
+#ifdef _XNRPE_DEBUG
+             serverLog(LL_DEBUG, "len = %d, json_size=%d", len,json_size);
+#endif
     memcpy(temp, msg+MESSAGE_HEAD_LEN, json_size);
-    //printf("json: %s\n",temp);
     char type = buf[6];
     if(type == 0)
     {
@@ -266,11 +277,13 @@ int my_system(char *command, char *outbuf)
     char *buffer=outbuf;
     char tempbuff[MAX_SYSTEM_RETRUN_BUFFER]={0};
 #ifdef _XNRPE_DEBUG
-    printf("%s\n",command);
+    //printf("%s\n",command);
+    serverLog(LL_DEBUG, "%s\n",command);
 #endif
     if((fp=popen(command, "r")) == NULL)
     {
-        fprintf(stdout,"popen error: %s",strerror(errno));
+        //fprintf(stdout,"popen error: %s",strerror(errno));
+        serverLog(LL_WARNING, "popen error: %s",strerror(errno));
         return -1;
     }
     
@@ -287,6 +300,96 @@ int my_system(char *command, char *outbuf)
     }
     else
         return 0;  
+}
+
+void create_pid_file()
+{
+    if(strcmp(pid_file_path,"\0") == 0)    
+    {
+        strcpy(pid_file_path, CONFIG_DEFAULT_PID_FILE);
+    }
+    FILE *fp = fopen(pid_file_path, "w");
+    if(fp)
+    {
+        fprintf(fp,"%d\n",(int)getpid());
+        serverLog(LL_NOTICE,"create pid file success");
+        fclose(fp);
+    }
+}
+
+void create_daemonize()
+{
+    int fd;
+    if(fork() != 0)
+    {
+        exit(0);
+    }
+    setsid();
+    serverLog(LL_NOTICE,"setsid success");
+    if((fd == open("/dev/null",O_RDWR, 0)) != -1)
+    {
+        dup2(fd, STDIN_FILENO);
+        dup2(fd, STDOUT_FILENO);
+        dup2(fd, STDERR_FILENO);
+        if (fd > STDERR_FILENO) 
+            close(fd);
+    }
+}
+
+void serverLogRaw(int level, const char *msg) 
+{
+   // const int syslogLevelMap[] = { LOG_DEBUG, LOG_INFO, LOG_NOTICE, LOG_WARNING };
+    const char *c = ".-*#";
+    FILE *fp;
+    char buf[64];
+    int rawmode = (level & LL_RAW);
+    //int log_to_stdout = log_file[0] == '\0';
+    FILE *log_to_stdout=NULL;
+    if(log_file==NULL || log_file[0] == '\0')
+    {
+        log_to_stdout = stdout;
+    }
+
+    level &= 0xff; /* clear flags */
+    
+    fp = log_to_stdout ? stdout : fopen(log_file,"a");
+    if (!fp) 
+        return;
+
+    if (rawmode) {
+        fprintf(fp,"%s",msg);
+    } else {
+        int off;
+        struct timeval tv;
+        
+        gettimeofday(&tv,NULL);
+        off = strftime(buf,sizeof(buf),"%d %b %H:%M:%S.",localtime(&tv.tv_sec));
+        snprintf(buf+off,sizeof(buf)-off,"%03d",(int)tv.tv_usec/1000);
+        
+        fprintf(fp,"%d: %s %c %s\n",
+            (int)getpid(), buf,c[level],msg);
+    }
+    fflush(fp);
+
+    if (!log_to_stdout) fclose(fp);
+   // if (server.syslog_enabled) syslog(syslogLevelMap[level], "%s", msg);
+}
+
+/* Like serverLogRaw() but with printf-alike support. This is the function that
+ * is used across the code. The raw version is only used in order to dump
+ * the INFO output on crash. */
+void serverLog(int level, const char *fmt, ...) 
+{
+    va_list ap;
+    char msg[LOG_MAX_LEN];
+
+    //if ((level&0xff) < server.verbosity) return;
+
+    va_start(ap, fmt);
+    vsnprintf(msg, sizeof(msg), fmt, ap);
+    va_end(ap);
+
+    serverLogRaw(level,msg);
 }
 
 

@@ -10,6 +10,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <time.h>
 
 
 char *log_file = NULL;
@@ -52,6 +53,10 @@ void open_log_file()
 
 	close_log_file();
 
+	if(log_file == NULL)
+	{
+		log_file = strdup(LOG_DEFAULT_FILE);
+	}
 	if (!log_file)
 		return;
 
@@ -94,7 +99,7 @@ void logit(int priority, const char *format, ...)
 	time_t	log_time = 0L;
 	va_list	ap;
 	char	*buffer = NULL;
-
+	char timebuf[50];
 	if (!format || !*format)
 		return;
 
@@ -103,12 +108,13 @@ void logit(int priority, const char *format, ...)
     {
 		if (log_fp) 
         {
-			time(&log_time);
+			time_t t = time(&log_time);
 			/* strip any newlines from the end of the buffer */
 			strip(buffer);
-
+			strftime(timebuf, 50, "%Y%m%d%H%M%S", localtime(&t));
 			/* write the buffer to the log file */
-			fprintf(log_fp, "[%llu] %s\n", (unsigned long long)log_time, buffer);
+			//fprintf(log_fp, "[%llu] %s\n", (unsigned long long)log_time, buffer);
+			fprintf(log_fp, "[%s] %s\n", timebuf, buffer);
 			fflush(log_fp);
 
 		} else
@@ -127,5 +133,10 @@ void close_log_file()
 	fflush(log_fp);
 	fclose(log_fp);
 	log_fp = NULL;
+	if(log_file != NULL)
+	{
+		free(log_file);
+		log_file = NULL;
+	}
 	return;
 }
