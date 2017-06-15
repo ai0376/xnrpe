@@ -60,6 +60,21 @@ $./xnrpe -c xnrpe.conf
 **report _time=10**
 
     report time(seconds)
+**daemonize=yes**
+
+    By default xnrpe does not run as a daemon. Use 'yes' if you need it
+
+    Note that xnrpe will write a pid file in /var/run/xnrpe.pid when daemonized
+**logfile=/var/log/xnrpe.log**
+
+    Specify the log file name. Also the empty string can be used to force
+    xnrpe to log on the standard output. Note that if you use standard
+    output for logging but daemonize, logs will be sent to /dev/null
+
+**pidfile=/var/run/xnrpe.pid**
+
+    Creating a pid file is best effort: if xnrpe is not able to create 
+    it nothing bad happens, the server will start and run normally.
 
 **command[check_disk_io]=../plugins/check_disk_io**
 
