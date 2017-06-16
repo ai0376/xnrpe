@@ -169,10 +169,11 @@ void usage(int result)
     printf("\n");
     if (result != OK || show_help == true)
     {
-        printf("Usage: xnrpe -c <config_file> \n");
+        printf("Usage: xnrpe -c <config_file> [-d]\n");
         printf("\n");
         printf("Options:\n");
         printf(" -c <config_file> = Name of config file to use\n");
+        printf(" -d For debug,print some info in log file\n");
         printf("\n");
     }
     exit(ERROR);
