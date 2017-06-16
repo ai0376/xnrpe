@@ -10,8 +10,6 @@ int report_time = DEFAULT_HEARTBEAT_TIME;
 int daemonize = 0;
 
 extern int errno;
-struct epoll_event event;
-struct epoll_event ev[EPOLL_LEN];
 char  config_file[MAX_INPUT_BUFFER] = "nrpe.cfg";
 
 int listen_socks[MAX_LISTEN_SOCKS];
@@ -68,7 +66,6 @@ void *report_task(void *args)
                     strcpy(cmd,commands_array[index].neType);
                     strcpy(id,commands_array[index].neId);
                     
-
                     if(strcmp(cmd, "PF-SERVER-UNIX")==0 || strcmp(cmd, "PF-DB-INFORMIX")==0)
                     {
                         command *tempcommand = command_list;
@@ -78,10 +75,7 @@ void *report_task(void *args)
                         while(tempcommand != NULL)
                         {
                             bzero(mycmd, MAX_COMMAND_NUM);
-                            //tempcommand->command_name
-                            strcpy(mycmd, tempcommand->command_line);
-                            strcat(mycmd, " ");
-                            strcat(mycmd, id);
+                            sprintf(mycmd, "%s %s",tempcommand->command_line,id);
                             bzero(buf,MAX_SYSTEM_RETRUN_BUFFER);
                             char cmdname[512]={0};
                             strcpy(cmdname, tempcommand->command_name);
