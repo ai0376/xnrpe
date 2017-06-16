@@ -112,9 +112,8 @@ void *report_task(void *args)
                             len = strlen(buf);
                             len = pack_msg(buf,len,outbuf,1);
                             report_tcp_information(outbuf, len,0);
-#ifdef _XNRPE_DEBUG
-                        logit(LL_DEBUG, "had report [%s] info",cmd);
-#endif // _XNRPE_DEBUG
+                            if(gdebug)
+                                logit(LL_DEBUG, "had report [%s] info",cmd);
                         }
                     }
                 }
@@ -148,10 +147,9 @@ void *task(void *args)
         }
         if(strcmp(cmd, "ACK") == 0) // heartbeat 
         {
-#ifdef _XNRPE_DEBUG
+            if(gdebug)
             //fprintf(stdout,"time: %d cmd: %s\n",time,cmd);
-             logit(LL_DEBUG, "time: %d cmd: %s\n",time,cmd);
-#endif
+                logit(LL_DEBUG, "time: %d cmd: %s\n",time,cmd);
             sprintf(buf,"[{\"neIp\":\"%s\"}]",local_host);
             len = strlen(buf);
             len = pack_msg(buf, len,outbuf,0);
@@ -188,7 +186,7 @@ int process_arguments(int argc, char **argv)
     if (argc < 2)
         return ERROR;
 
-    snprintf(optchars, MAX_INPUT_BUFFER, "c:h");
+    snprintf(optchars, MAX_INPUT_BUFFER, "c:hd");
 
     while (1)
     {
@@ -201,6 +199,9 @@ int process_arguments(int argc, char **argv)
         case '?':
         case 'h':
             show_help = true;
+            break;
+        case 'd':
+            gdebug = 1;
             break;
         case 'c':
             strncpy(config_file, optarg, sizeof(config_file));
@@ -324,44 +325,41 @@ int read_config_file(char *filename)
         varname = strtok(input_line,"=");
         if(varname == NULL)
         {
-            fprintf(stdout, "No variable name specified in config file %s - Line %d\n", filename, line);
+            logit(LL_DEBUG,"No variable name specified in config file %s - Line %d\n", filename, line);
             return ERROR;
         }
         //get the variable value
         varvalue = strtok(NULL,"\n");
         if(varvalue == NULL)
         {
-            fprintf(stdout, "No variable name specified in config file %s - Line %d\n", filename, line);
+            logit(LL_DEBUG, "No variable name specified in config file %s - Line %d\n", filename, line);
             return ERROR;
         }
         else if(!strcmp(varname,"server_address"))
         {
             strncpy(server_address, varvalue, sizeof(server_address)-1);
             server_address[sizeof(server_address)-1] = '\0';
-#ifdef _XNRPE_DEBUG
-            fprintf(stdout,"GET %s=%s\n",varname,varvalue);
-#endif
+            if(gdebug)
+                logit(LL_DEBUG,"GET %s=%s\n",varname,varvalue);
         }
         else if(!strcmp(varname,"server_port"))
         {
             server_port = atoi(varvalue);
             if(server_port < 1024)
             {
-                fprintf(stdout,"Invalid port number specified in config file '%s' - Line %d\n",filename, line);
+                logit(LL_DEBUG,"Invalid port number specified in config file '%s' - Line %d\n",filename, line);
                 return ERROR;
             }
-#ifdef _XNRPE_DEBUG
-            fprintf(stdout,"GET %s=%s\n",varname,varvalue);
-#endif // _XNRPE_DEBUG
+            if(gdebug)
+                logit(LL_DEBUG,"GET %s=%s\n",varname,varvalue);
         }
         else if(!strcmp(varname,"localhost"))
         {
             bzero(local_host, NI_MAXHOST);
             strncpy(local_host, varvalue, sizeof(local_host)-1);
             local_host[sizeof(local_host)-1] = '\0';
-#ifdef _XNRPE_DEBUG
-            fprintf(stdout,"GET %s=%s\n",varname,varvalue);
-#endif // _XNRPE_DEBUG
+            if(gdebug)
+                logit(LL_DEBUG,"GET %s=%s\n",varname,varvalue);
         }
         else if(!strcmp(varname, "sock_send_recv_timeout"))
         {
@@ -370,9 +368,8 @@ int read_config_file(char *filename)
             {
                 sock_send_recv_timeout = DEFAULT_SOCK_SEND_RECV_TIMEOUT;
             }
-#ifdef _XNRPE_DEBUG
-            fprintf(stdout, "GET %s=%s\n",varname,varvalue);
-#endif // _XNRPE_DEBUG
+            if(gdebug)
+                logit(LL_DEBUG, "GET %s=%s\n",varname,varvalue);
         }
         else if(!strcmp(varname, "heartbeat_time"))
         {
@@ -381,9 +378,8 @@ int read_config_file(char *filename)
             {
                 heartbeat_time = DEFAULT_HEARTBEAT_TIME;
             }
-#ifdef _XNRPE_DEBUG
-            fprintf(stdout, "GET %s=%s\n",varname,varvalue);
-#endif // _XNRPE_DEBUG
+            if(gdebug)
+                logit(LL_DEBUG, "GET %s=%s\n",varname,varvalue);
         }
         else if(!strcmp(varname, "report_time"))
         {
@@ -392,9 +388,8 @@ int read_config_file(char *filename)
             {
                 report_time = DEFAULT_HEARTBEAT_TIME;
             }
-#ifdef _XNRPE_DEBUG
-            fprintf(stdout, "GET %s=%s\n",varname,varvalue);
-#endif // _XNRPE_DEBUG
+            if(gdebug)
+                logit(LL_DEBUG, "GET %s=%s\n",varname,varvalue);
         }
         else if(!strcmp(varname, "daemonize"))
         {
@@ -408,20 +403,18 @@ int read_config_file(char *filename)
             }
             else
             {
-                fprintf(stderr, "argument must be 'yes' or 'no'");
+                logit(LL_WARNING, "argument must be 'yes' or 'no'");
             }
-#ifdef _XNRPE_DEBUG
-            fprintf(stdout, "GET %s=%s\n",varname,varvalue);
-#endif // _XNRPE_DEBUG
+            if(gdebug)
+                logit(LL_DEBUG, "GET %s=%s\n",varname,varvalue);
         }
         else if(!strcmp(varname, "pidfile"))
         {
             bzero(pid_file_path, MAX_INPUT_BUFFER);
             strncpy(pid_file_path, varvalue, sizeof(pid_file_path)-1);
             pid_file_path[sizeof(pid_file_path)-1] = '\0';
-#ifdef _XNRPE_DEBUG
-            fprintf(stdout, "GET %s=%s\n",varname,varvalue);
-#endif // _XNRPE_DEBUG
+            if(gdebug)
+                logit(LL_DEBUG, "GET %s=%s\n",varname,varvalue);
         }
         else if(!strcmp(varname, "logfile"))
         {
@@ -434,9 +427,8 @@ int read_config_file(char *filename)
                 fp = fopen(log_file, "a");
                 fclose(fp);
             }
-#ifdef _XNRPE_DEBUG
-            fprintf(stdout, "GET %s=%s\n",varname,varvalue);
-#endif // _XNRPE_DEBUG
+            if(gdebug)
+                logit(LL_DEBUG, "GET %s=%s\n",varname,varvalue);
         }
         else if(strstr(input_line, "command["))
         {
@@ -444,17 +436,16 @@ int read_config_file(char *filename)
             temp_buffer = strtok(NULL,"]");
             if(temp_buffer == NULL)
             {
-                fprintf(stdout, "Invalid command specified in config file '%s' - Line %d\n",filename, line);
+                logit(LL_DEBUG, "Invalid command specified in config file '%s' - Line %d\n",filename, line);
                 return ERROR;
             }
             add_command(temp_buffer, varvalue);
-#ifdef _XNRPE_DEBUG
-            fprintf(stdout, "GET %s=%s\n",temp_buffer, varvalue);
-#endif // _XNRPE_DEBUG
+            if(gdebug)
+                logit(LL_DEBUG, "GET %s=%s\n",temp_buffer, varvalue);
         }
         else
         {
-            fprintf(stdout, "Unknown option specified in config file '%s' - Line %d\n",filename, line);
+            logit(LL_DEBUG, "Unknown option specified in config file '%s' - Line %d\n",filename, line);
             continue;
         }
     }
@@ -487,9 +478,8 @@ int main(int argc,char **argv)
         usage(result);
         exit(ERROR);
     }
-#ifdef _XNRPE_DEBUG
-    printf("GET:config_file=%s\n", config_file);
-#endif // _XNRPE_DEBUG
+    if(gdebug)
+        logit(LL_DEBUG,"GET:config_file=%s\n", config_file);
 
     if (config_file[0] != '/')
     {

@@ -4,6 +4,7 @@
 command_task commands_array[MAX_COMMAND_NUM];
 char pid_file_path[MAX_INPUT_BUFFER]={0};
 char *log_file=NULL ;
+int gdebug = 0;
 
 int command_array_size= 0 ;
 
@@ -71,10 +72,9 @@ int report_tcp_information(char *info, int len, int recv_flag)
     struct timeval timeout={sock_send_recv_timeout,0};;
     memset(&address, 0, sizeof(address));
     address.sin_family = AF_INET;
-#ifdef _XNRPE_DEBUG
+    if(gdebug)
     //fprintf(stdout,"\nremote:%s:%d\n",server_address,server_port);
-    logit(LL_DEBUG, "remote:%s:%d",server_address,server_port);
-#endif
+        logit(LL_DEBUG, "remote:%s:%d",server_address,server_port);
     address.sin_port = htons(server_port);
 
     if (resolve_host_name(server_address, &(address.sin_addr)) != 0)
@@ -126,10 +126,9 @@ int send_tcp_all(int s,char *buf, int len)
         total += n;
         bytesleft -= n;
     }
-#ifdef _XNRPE_DEBUG
+    if(gdebug)
     //fprintf(stdout,"\n\nsend_tcp_all:%d----send total=%d\n\n",len,total);
-    logit(LL_DEBUG, "send_tcp_all:%d----send total=%d",len,total);
-#endif
+        logit(LL_DEBUG, "send_tcp_all:%d----send total=%d",len,total);
     len = total;                /* return number of bytes actually sent here */
     return n == -1 ? -1 : 0;    /* return -1 on failure, 0 on success */
 }
@@ -233,17 +232,18 @@ int handle_heartbeat_respon_msg(char *str)
             command_array_size ++;
         }
     }
-#ifdef _XNRPE_DEBUG
-    //printf("cmd-array-size: %d\n",command_array_size);
-    logit(LL_DEBUG, "cmd-array-size: %d",command_array_size);
-    char *p = cJSON_PrintUnformatted(root);
-    logit(LL_DEBUG, "response:%s",p);
-    if(p != NULL)
+    if(gdebug)
     {
-        free(p);
-        p = NULL;
+        //printf("cmd-array-size: %d\n",command_array_size);
+        logit(LL_DEBUG, "cmd-array-size: %d",command_array_size);
+        char *p = cJSON_PrintUnformatted(root);
+        logit(LL_DEBUG, "response:%s",p);
+        if(p != NULL)
+        {
+            free(p);
+            p = NULL;
+        }
     }
-#endif // _XNRPE_DEBUG
     cJSON_Delete(root);
     return 0;
 }
@@ -253,9 +253,8 @@ int handle_response_message(char *buf, int len)
     char *msg = buf;
     char temp[MAX_INPUT_BUFFER]="";
     int json_size = ((buf[2]&0xFF)<<24|(buf[3]&0xFF)<<16|(buf[4]&0xFF)<<8|(buf[5]&0xFF)<<0);
-#ifdef _XNRPE_DEBUG
-             logit(LL_DEBUG, "len = %d, json_size=%d", len,json_size);
-#endif
+    if(gdebug)
+        logit(LL_DEBUG, "len = %d, json_size=%d", len,json_size);
     memcpy(temp, msg+MESSAGE_HEAD_LEN, json_size);
     char type = buf[6];
     if(type == 0)
@@ -276,10 +275,9 @@ int my_system(char *command, char *outbuf)
     int byte_read = 0;
     char *buffer=outbuf;
     char tempbuff[MAX_SYSTEM_RETRUN_BUFFER]={0};
-#ifdef _XNRPE_DEBUG
+    if(gdebug)
     //printf("%s\n",command);
-    logit(LL_DEBUG, "%s\n",command);
-#endif
+        logit(LL_DEBUG, "%s\n",command);
     if((fp=popen(command, "r")) == NULL)
     {
         //fprintf(stdout,"popen error: %s",strerror(errno));

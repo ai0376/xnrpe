@@ -42,7 +42,7 @@
 #define CONFIG_DEFAULT_PID_FILE "/var/run/xnrpe.pid"
 #define LOG_DEFAULT_FILE "/var/log/xnrpe.log"
 
-#define _XNRPE_DEBUG 1
+//#define _XNRPE_DEBUG 1
 //#define _TEST   1
 
 #define LL_DEBUG 0
@@ -64,6 +64,7 @@ extern char *log_file;
 extern int command_array_size;
 extern int report_flag;
 extern int daemonize;
+extern int gdebug;
 
 typedef struct args{
     int time; //seconds
