@@ -111,13 +111,14 @@ void *report_task(void *args)
                         }
                     }
                 }
+                sleep(report_time);
             }
         }
        // else
         {
 
         }
-        sleep(report_time);
+        sleep(1);
     }
 }
 //timer task and send message
