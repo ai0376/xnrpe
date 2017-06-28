@@ -23,3 +23,6 @@ plugins/check_informix_sharemem
 *.tmp
 *.log
 *.pid
+
+xcheck/xcheck
+.idea/
