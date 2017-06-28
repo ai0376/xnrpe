@@ -76,17 +76,32 @@ void *report_task(void *args)
                         {
                             bzero(mycmd, MAX_COMMAND_NUM);
                            // sprintf(mycmd, "%s %s",tempcommand->command_line,id);
-                            sprintf(mycmd, "python %s 192.168.2.21 23 xnrpe 123456 ]$",tempcommand->command_line);
+                            
                             bzero(buf,MAX_SYSTEM_RETRUN_BUFFER);
                             char cmdname[512]={0};
                             strcpy(cmdname, tempcommand->command_name);
                             char *type = strtok(cmdname, "_");
                             type = strtok(NULL, "_");
                             len = 0;
-                            if((strcmp(type,"informix") != 0) && (strcmp(cmd, "PF-SERVER-UNIX")==0))                        
+                            if((strcmp(type,"informix") != 0) && (strcmp(cmd, "PF-SERVER-UNIX")==0))
+                            {
+                                sprintf(mycmd, "%s %s",tempcommand->command_line,id);                                                        
                                 len = my_system(mycmd,buf);
+                            }
+                            else if((strcmp(type,"ips") == 0))
+                            {
+                                sprintf(mycmd, "python %s 192.168.2.21 23 xnrpe 123456 ]$",tempcommand->command_line);
+                                len = my_system(mycmd,buf);
+                            }
+                            else if((strcmp(type,"dbinformix") == 0))
+                            {
+                                sprintf(mycmd, "python %s %s",tempcommand->command_line,id);
+                                len = my_system(mycmd,buf);
+                            }
                             else if((strcmp(type,"informix") == 0) && (strcmp(cmd, "PF-DB-INFORMIX")==0))
+                            {
                                 len = my_system(mycmd,buf);
+                            }
                             if(len == 0)
                             {
                                 tempcommand = tempcommand->next;

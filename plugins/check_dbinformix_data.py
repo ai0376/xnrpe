@@ -25,7 +25,7 @@ def do_db_informix(dsn):
                     dd = dict(hostname=row[0],overtime=row[1])
                     str = '%s'%(json.dumps(dd))
     except Exception as e:
-        print e
+        #print e
         pass
     return str.decode('unicode_escape')
 
