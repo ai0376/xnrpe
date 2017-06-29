@@ -5,17 +5,21 @@ __time__ = '2017/6/28'
 
 '''
 # yum install unixODBC
-# install informix client sdk
+# install informix client sdk;  ./installclient -gui
 # pip install pyodbc
 # python >= 2.7
 '''
 import pyodbc
 import json
+import sys
+
+neTopType ='PF_DBINFORMIX_DATA';
 
 def do_db_informix(dsn):
 
     #info_list=[]
     str = ''
+    i = 0
     try:
         with pyodbc.connect('DSN=%s'%dsn) as conn:
             with conn.cursor() as  cursor:
@@ -23,12 +27,22 @@ def do_db_informix(dsn):
                 rows = cursor.fetchall()
                 for row in rows:
                     dd = dict(hostname=row[0],overtime=row[1])
-                    str = '%s'%(json.dumps(dd))
+                    if i == 0:
+                        return dd
+                    else:
+                        pass
     except Exception as e:
-        #print e
         pass
-    return str.decode('unicode_escape')
+    #return str.decode('unicode_escape')
 
 if __name__ == '__main__':
-    print do_db_informix('informix')
+    
+    if len(sys.argv) != 2:
+        pass
+    else:
+        id = sys.argv[1]
+        info = do_db_informix('informix')
+        if info:
+            dic = dict(values=info,neTopType=neTopType,neId=id,neName='')
+            print json.dumps(dic).decode('unicode_escape')
     pass
