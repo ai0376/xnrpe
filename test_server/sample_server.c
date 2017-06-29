@@ -147,6 +147,7 @@ int main(int argc, char * argv[])
 						memset(outbuf,0,BUFFER_SIZE);
 						len = ((buf[2]&0xFF)<<24|(buf[3]&0xFF)<<16|(buf[4]&0xFF)<<8|(buf[5]&0xFF)<<0);
 						strncpy(outbuf,buf+7, len);
+						printf("size=%d\n",len);
 						printf("report: %s\n",outbuf);
 					}
                    /* else if(type == 1)
