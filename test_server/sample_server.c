@@ -122,7 +122,6 @@ int main(int argc, char * argv[])
 					event_del.data.fd = events[i].data.fd;
 					event_del.events = 0;
 					epoll_ctl(epoll_fd, EPOLL_CTL_DEL, event_del.data.fd, &event_del);
-					//printf("\n\nxxx---%d\n",count);
 					close(events[i].data.fd);
 				}
 				else
@@ -130,10 +129,14 @@ int main(int argc, char * argv[])
 					char type = buf[6];
                     if(type == 0)
                     {
+						/*char temp[MAX_INPUT_BUFFER]="";
+						int json_size = ((buf[2]&0xFF)<<24|(buf[3]&0xFF)<<16|(buf[4]&0xFF)<<8|(buf[5]&0xFF)<<0);
+						memcpy(temp, msg+7, json_size);
+						*/
 						memset(buf,0,BUFFER_SIZE);
 						memset(outbuf,0,BUFFER_SIZE);
 						//strcpy(buf, "[{\"neId\":\"40288bf75c4793b4015c47ba31ff0001\",\"neType\":\"PF-SERVER-UNIX\"}]");
-						strcpy(buf, "[{\"neId\":\"40288bf75c4793b4015c47ba31ff0001\",\"neType\":\"PF-SERVER-UNIX\"},{\"neId\":\"40288bf75c4793b4015c47ba31ff0002\",\"neType\":\"PF-DB-INFORMIX\"}]");
+						strcpy(buf, "[{\"neId\":\"40288bf75c4793b4015c47ba31ff0001\",\"neType\":\"PF_DBINFORMIX_DATA\"}]");
 						len = strlen(buf);
 						int ret = pack_msg(buf, len,outbuf,0);
                         ret = send(events[i].data.fd,outbuf,ret,0);

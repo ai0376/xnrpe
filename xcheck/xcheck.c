@@ -66,7 +66,7 @@ void *report_task(void *args)
                     strcpy(cmd,commands_array[index].neType);
                     strcpy(id,commands_array[index].neId);
                     
-                    if(strcmp(cmd, "PF-SERVER-UNIX")==0 || strcmp(cmd, "PF-DB-INFORMIX")==0)
+                    if(strcmp(cmd, "PF-SERVER-UNIX")==0 || strcmp(cmd, "PF-DB-INFORMIX")==0 || strcmp(cmd, "PF_DBINFORMIX_DATA")==0)
                     {
                         command *tempcommand = command_list;
                         bzero(outbuf,MAX_SYSTEM_RETRUN_BUFFER);
@@ -161,9 +161,9 @@ void *task(void *args)
             if(gdebug)
             //fprintf(stdout,"time: %d cmd: %s\n",time,cmd);
                 logit(LL_DEBUG, "time: %d cmd: %s\n",time,cmd);
-            sprintf(buf,"[{\"neIp\":\"%s\"}]",local_host);
+            sprintf(buf,"[{\"neIp\":\"%s\",\"neType\":\"PF_DBINFORMIX_DATA\"}]",local_host);
             len = strlen(buf);
-            len = pack_msg(buf, len,outbuf,0);
+            len = pack_msg(buf, len, outbuf,0);
             report_tcp_information(outbuf, len, 1);
         }
         sleep(time);
