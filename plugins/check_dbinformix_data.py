@@ -44,5 +44,6 @@ if __name__ == '__main__':
         info = do_db_informix('informix')
         if info:
             dic = dict(values=info,neTopType=neTopType,neId=id,neName='')
-            print json.dumps(dic).decode('unicode_escape')
+            #print json.dumps(dic).decode('unicode_escape')
+            print json.dumps(dic)
     pass
